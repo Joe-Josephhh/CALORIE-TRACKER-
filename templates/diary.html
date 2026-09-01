@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block title %}
+Food Diary
+{% endblock %}
+
+
+{% block content %}
+
+<div class="page-header">
+
+    <h1>
+        Food Diary
+    </h1>
+
+    <p>
+        {{ date }}
+    </p>
+
+</div>
+
+
+{% if success_message %}
+
+<div class="alert success">
+
+    {{ success_message }}
+
+</div>
+
+{% endif %}
+
+
+<div class="summary-grid">
+
+    <div class="summary-card">
+
+        <span>
+            Calories
+        </span>
+
+        <strong>
+            {{ "%.1f"|format(
+                totals["Calories (kcal)"]
+            ) }}
+        </strong>
+
+        <small>
+            kcal
+        </small>
+
+    </div>
+
+
+    <div class="summary-card">
+
+        <span>
+            Protein
+        </span>
+
+        <strong>
+            {{ "%.1f"|format(
+                totals["Protein (g)"]
+            ) }}
+        </strong>
+
+        <small>
+            g
+        </small>
+
+    </div>
+
+
+    <div class="summary-card">
+
+        <span>
+            Carbohydrates
+        </span>
+
+        <strong>
+            {{ "%.1f"|format(
+                totals["Carbohydrates (g)"]
+            ) }}
+        </strong>
+
+        <small>
+            g
+        </small>
+
+    </div>
+
+
+    <div class="summary-card">
+
+        <span>
+            Fats
+        </span>
+
+        <strong>
+            {{ "%.1f"|format(
+                totals["Fats (g)"]
+            ) }}
+        </strong>
+
+        <small>
+            g
+        </small>
+
+    </div>
+
+</div>
+
+
+{% if entries %}
+
+<div class="card">
+
+    <h2>
+        Today's Meals
+    </h2>
+
+
+    {% for entry in entries %}
+
+    <div class="diary-entry">
+
+        <div>
+
+            <h3>
+                {{ entry.dish_name }}
+            </h3>
+
+            <p>
+
+                {{ entry.time }}
+
+                |
+
+                {{ entry.meal_type|capitalize }}
+
+                |
+
+                {{ entry.weight }} g
+
+            </p>
+
+            {% if entry.notes %}
+
+            <p class="notes">
+
+                {{ entry.notes }}
+
+            </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="nutrition-small">
+
+            <strong>
+
+                {{ "%.1f"|format(
+                    entry.nutrition[
+                        "Calories (kcal)"
+                    ]
+                ) }}
+
+                kcal
+
+            </strong>
+
+            <span>
+
+                P:
+                {{ "%.1f"|format(
+                    entry.nutrition[
+                        "Protein (g)"
+                    ]
+                ) }}g
+
+            </span>
+
+            <span>
+
+                C:
+                {{ "%.1f"|format(
+                    entry.nutrition[
+                        "Carbohydrates (g)"
+                    ]
+                ) }}g
+
+            </span>
+
+            <span>
+
+                F:
+                {{ "%.1f"|format(
+                    entry.nutrition[
+                        "Fats (g)"
+                    ]
+                ) }}g
+
+            </span>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+
+{% else %}
+
+<div class="card empty-state">
+
+    <h2>
+        No food logged
+    </h2>
+
+    <p>
+        You have not logged any food for this date.
+    </p>
+
+    <a
+        href="{{ url_for('food_scan') }}"
+        class="button"
+    >
+        Scan Food
+    </a>
+
+</div>
+
+{% endif %}
+
+
+<div class="action-row">
+
+    <a
+        href="{{ url_for('log_food') }}"
+        class="button"
+    >
+        Add Food
+    </a>
+
+    <a
+        href="{{ url_for('export_diary') }}"
+        class="button secondary"
+    >
+        Export CSV
+    </a>
+
+</div>
+
+{% endblock %}

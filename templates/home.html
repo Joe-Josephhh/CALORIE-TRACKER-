@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}
+Home - Calorie Tracker
+{% endblock %}
+
+
+{% block content %}
+
+<section class="hero">
+
+    <h1>
+        Indian Food Calorie Tracker
+    </h1>
+
+    <p>
+        Identify Indian food using your trained
+        EfficientNetB0 model and track its nutrition.
+    </p>
+
+    <div class="hero-buttons">
+
+        <a
+            href="{{ url_for('food_scan') }}"
+            class="button"
+        >
+            Scan Food
+        </a>
+
+        <a
+            href="{{ url_for('diary') }}"
+            class="button secondary"
+        >
+            View Diary
+        </a>
+
+    </div>
+
+</section>
+
+
+<section class="feature-grid">
+
+    <div class="card">
+
+        <h2>Food Recognition</h2>
+
+        <p>
+            Upload an image and let the trained
+            EfficientNetB0 model predict the food.
+        </p>
+
+    </div>
+
+
+    <div class="card">
+
+        <h2>Nutrition</h2>
+
+        <p>
+            Calculate calories and nutrients
+            according to the food weight.
+        </p>
+
+    </div>
+
+
+    <div class="card">
+
+        <h2>Food Diary</h2>
+
+        <p>
+            Record meals and view daily or
+            date-range nutrition summaries.
+        </p>
+
+    </div>
+
+</section>
+
+{% endblock %}

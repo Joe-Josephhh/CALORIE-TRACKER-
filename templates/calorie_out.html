@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Calorie Out | Calorie Tracker</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- Header -->
+
+        <div class="page-header">
+
+            <a href="/" class="back-link">
+                ← Back to Calorie Intake
+            </a>
+
+            <h1>🔥 Calorie Out</h1>
+
+            <p>
+                Calculate calories burned from your physical activity.
+            </p>
+
+        </div>
+
+
+        <!-- Main Card -->
+
+        <div class="calorie-out-card">
+
+            <h2>Exercise Details</h2>
+
+            <form id="calorieOutForm">
+
+
+                <!-- Activity Category -->
+
+                <div class="form-group">
+
+                    <label for="category">
+                        Activity Category
+                    </label>
+
+                    <select id="category" required>
+
+                        <option value="">
+                            -- Select Category --
+                        </option>
+
+                        {% for category in categories %}
+
+                        <option value="{{ category }}">
+                            {{ category }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- Activity -->
+
+                <div class="form-group">
+
+                    <label for="activity">
+                        Activity
+                    </label>
+
+                    <select id="activity" required disabled>
+
+                        <option value="">
+                            -- Select an activity --
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- Weight -->
+
+                <div class="form-group">
+
+                    <label for="weight">
+                        Body Weight (kg)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="weight"
+                        min="1"
+                        max="500"
+                        step="0.1"
+                        placeholder="Example: 65"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Duration -->
+
+                <div class="form-group">
+
+                    <label for="duration">
+                        Duration (minutes)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="duration"
+                        min="1"
+                        max="1440"
+                        step="1"
+                        placeholder="Example: 30"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Calculate -->
+
+                <button
+                    type="submit"
+                    class="calculate-btn"
+                    id="calculateBtn"
+                >
+                    Calculate Calories Burned
+                </button>
+
+            </form>
+
+
+            <!-- Error -->
+
+            <div
+                id="errorMessage"
+                class="error-message"
+                style="display: none;"
+            ></div>
+
+
+            <!-- Result -->
+
+            <div
+                id="result"
+                class="calorie-result"
+                style="display: none;"
+            >
+
+                <h2>Calories Burned</h2>
+
+                <div class="calories-number">
+                    <span id="caloriesBurned">0</span>
+                    <small>kcal</small>
+                </div>
+
+
+                <div class="result-details">
+
+                    <p>
+                        <strong>Activity:</strong>
+                        <span id="resultActivity"></span>
+                    </p>
+
+                    <p>
+                        <strong>MET:</strong>
+                        <span id="resultMet"></span>
+                    </p>
+
+                    <p>
+                        <strong>Weight:</strong>
+                        <span id="resultWeight"></span>
+                        kg
+                    </p>
+
+                    <p>
+                        <strong>Duration:</strong>
+                        <span id="resultDuration"></span>
+                        minutes
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+<script>
+
+    // -----------------------------------------------------
+    // Elements
+    // -----------------------------------------------------
+
+    const categorySelect =
+        document.getElementById("category");
+
+    const activitySelect =
+        document.getElementById("activity");
+
+    const form =
+        document.getElementById("calorieOutForm");
+
+    const result =
+        document.getElementById("result");
+
+    const errorMessage =
+        document.getElementById("errorMessage");
+
+    const calculateBtn =
+        document.getElementById("calculateBtn");
+
+
+    // -----------------------------------------------------
+    // Category changed
+    // -----------------------------------------------------
+
+    categorySelect.addEventListener("change", async function () {
+
+        const category = this.value;
+
+        activitySelect.innerHTML =
+            '<option value="">Loading activities...</option>';
+
+        activitySelect.disabled = true;
+
+        hideResult();
+        hideError();
+
+
+        if (!category) {
+
+            activitySelect.innerHTML =
+                '<option value="">-- Select an activity --</option>';
+
+            return;
+        }
+
+
+        try {
+
+            const response = await fetch(
+                `/api/activities/${encodeURIComponent(category)}`
+            );
+
+            const data = await response.json();
+
+
+            if (!data.success) {
+
+                showError(
+                    "Unable to load activities."
+                );
+
+                return;
+            }
+
+
+            activitySelect.innerHTML =
+                '<option value="">-- Select an activity --</option>';
+
+
+            data.activities.forEach(function (activity) {
+
+                const option =
+                    document.createElement("option");
+
+                option.value = activity.code;
+
+                option.textContent =
+                    `${activity.description} (MET: ${activity.met})`;
+
+                activitySelect.appendChild(option);
+
+            });
+
+
+            activitySelect.disabled =
+                data.activities.length === 0;
+
+
+            if (data.activities.length === 0) {
+
+                activitySelect.innerHTML =
+                    '<option value="">No activities found</option>';
+
+            }
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            showError(
+                "Could not connect to the server."
+            );
+
+            activitySelect.innerHTML =
+                '<option value="">Unable to load activities</option>';
+        }
+
+    });
+
+
+    // -----------------------------------------------------
+    // Calculate calories
+    // -----------------------------------------------------
+
+    form.addEventListener("submit", async function (event) {
+
+        event.preventDefault();
+
+        hideError();
+        hideResult();
+
+
+        const activityCode =
+            activitySelect.value;
+
+        const weight =
+            document.getElementById("weight").value;
+
+        const duration =
+            document.getElementById("duration").value;
+
+
+        if (!activityCode) {
+
+            showError(
+                "Please select an activity."
+            );
+
+            return;
+        }
+
+
+        if (!weight || Number(weight) <= 0) {
+
+            showError(
+                "Please enter a valid body weight."
+            );
+
+            return;
+        }
+
+
+        if (!duration || Number(duration) <= 0) {
+
+            showError(
+                "Please enter a valid duration."
+            );
+
+            return;
+        }
+
+
+        calculateBtn.disabled = true;
+
+        calculateBtn.textContent =
+            "Calculating...";
+
+
+        try {
+
+            const response = await fetch(
+                "/api/calculate-calories",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        activity_code:
+                            activityCode,
+
+                        weight_kg:
+                            Number(weight),
+
+                        duration_minutes:
+                            Number(duration)
+
+                    })
+                }
+            );
+
+
+            const data =
+                await response.json();
+
+
+            if (!data.success) {
+
+                showError(
+                    data.error ||
+                    "Calculation failed."
+                );
+
+                return;
+            }
+
+
+            const calculation =
+                data.result;
+
+
+            // Display result
+
+            document.getElementById(
+                "caloriesBurned"
+            ).textContent =
+                calculation.calories_burned;
+
+
+            document.getElementById(
+                "resultActivity"
+            ).textContent =
+                calculation.description;
+
+
+            document.getElementById(
+                "resultMet"
+            ).textContent =
+                calculation.met;
+
+
+            document.getElementById(
+                "resultWeight"
+            ).textContent =
+                calculation.weight_kg;
+
+
+            document.getElementById(
+                "resultDuration"
+            ).textContent =
+                calculation.duration_minutes;
+
+
+            result.style.display =
+                "block";
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            showError(
+                "Could not connect to the server."
+            );
+
+        }
+
+        finally {
+
+            calculateBtn.disabled =
+                false;
+
+            calculateBtn.textContent =
+                "Calculate Calories Burned";
+
+        }
+
+    });
+
+
+    // -----------------------------------------------------
+    // Helper functions
+    // -----------------------------------------------------
+
+    function showError(message) {
+
+        errorMessage.textContent =
+            message;
+
+        errorMessage.style.display =
+            "block";
+    }
+
+
+    function hideError() {
+
+        errorMessage.style.display =
+            "none";
+    }
+
+
+    function hideResult() {
+
+        result.style.display =
+            "none";
+    }
+
+</script>
+
+</body>
+
+</html>

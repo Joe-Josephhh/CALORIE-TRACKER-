@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}
+Food Database
+{% endblock %}
+
+
+{% block content %}
+
+<div class="page-header">
+
+    <h1>
+        Food Database
+    </h1>
+
+    <p>
+        Search foods available in your nutrition dataset.
+    </p>
+
+</div>
+
+
+<div class="card">
+
+    <form
+        method="GET"
+        action="{{ url_for('foods') }}"
+    >
+
+        <input
+            type="text"
+            name="q"
+            value="{{ query }}"
+            placeholder="Search food..."
+        >
+
+        <button
+            type="submit"
+            class="button"
+        >
+            Search
+        </button>
+
+    </form>
+
+</div>
+
+
+<div class="card">
+
+    {% if query %}
+
+    <h2>
+        Results for "{{ query }}"
+    </h2>
+
+    {% else %}
+
+    <h2>
+        Available Foods
+    </h2>
+
+    {% endif %}
+
+
+    {% if foods %}
+
+        <div class="food-list">
+
+        {% for food in foods %}
+
+            <div class="food-item">
+
+                <span>
+                    {{ food }}
+                </span>
+
+                <a
+                    href="{{ url_for(
+                        'log_food',
+                        food=food
+                    ) }}"
+                    class="button small"
+                >
+                    Log
+                </a>
+
+            </div>
+
+        {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <p>
+            No matching foods found.
+        </p>
+
+    {% endif %}
+
+</div>
+
+
+<div class="card">
+
+    <h2>
+        Custom Food
+    </h2>
+
+    <a
+        href="{{ url_for('log_food') }}"
+        class="button secondary"
+    >
+        Add Custom Food
+    </a>
+
+</div>
+
+{% endblock %}

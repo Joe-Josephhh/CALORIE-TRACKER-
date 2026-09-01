@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+
+{% block title %}
+Log Food
+{% endblock %}
+
+
+{% block content %}
+
+<div class="page-header">
+
+    <h1>
+        Log Food
+    </h1>
+
+    <p>
+        Enter the food and serving information.
+    </p>
+
+</div>
+
+
+<form
+    action="{{ url_for('log_food') }}"
+    method="POST"
+    class="card"
+>
+
+
+    <!-- Food name -->
+
+    <label for="dish_name">
+        Food Name
+    </label>
+
+    <input
+        type="text"
+        id="dish_name"
+        name="dish_name"
+        value="{{ selected_food }}"
+        required
+    >
+
+
+    <!-- Custom food -->
+
+    <div class="checkbox-row">
+
+        <input
+            type="checkbox"
+            id="custom_food"
+            name="is_custom"
+            value="yes"
+            onchange="toggleCustomNutrition()"
+        >
+
+        <label for="custom_food">
+            This is a custom food
+        </label>
+
+    </div>
+
+
+    <!-- Weight -->
+
+    <label for="weight">
+        Weight (grams)
+    </label>
+
+    <select
+        id="weight"
+        onchange="setWeight()"
+    >
+
+        <option value="">
+            Select preset weight
+        </option>
+
+        {% for weight in preset_weights %}
+
+        <option value="{{ weight }}">
+            {{ weight }} g
+        </option>
+
+        {% endfor %}
+
+        <option value="custom">
+            Custom weight
+        </option>
+
+    </select>
+
+
+    <input
+        type="number"
+        id="weight_input"
+        name="weight"
+        min="0.1"
+        step="0.1"
+        placeholder="Enter weight in grams"
+        required
+    >
+
+
+    <!-- Meal type -->
+
+    <label for="meal_type">
+        Meal Type
+    </label>
+
+    <select
+        id="meal_type"
+        name="meal_type"
+    >
+
+        {% for meal in meal_types %}
+
+        <option value="{{ meal }}">
+            {{ meal|capitalize }}
+        </option>
+
+        {% endfor %}
+
+    </select>
+
+
+    <!-- Custom nutrition -->
+
+    <div
+        id="custom-nutrition"
+        class="custom-nutrition"
+        style="display:none;"
+    >
+
+        <h2>
+            Nutrition per 100g
+        </h2>
+
+
+        <label>
+            Calories (kcal)
+        </label>
+
+        <input
+            type="number"
+            name="calories"
+            step="0.01"
+            value="0"
+        >
+
+
+        <label>
+            Protein (g)
+        </label>
+
+        <input
+            type="number"
+            name="protein"
+            step="0.01"
+            value="0"
+        >
+
+
+        <label>
+            Carbohydrates (g)
+        </label>
+
+        <input
+            type="number"
+            name="carbohydrates"
+            step="0.01"
+            value="0"
+        >
+
+
+        <label>
+            Fats (g)
+        </label>
+
+        <input
+            type="number"
+            name="fats"
+            step="0.01"
+            value="0"
+        >
+
+
+        <label>
+            Free Sugar (g)
+        </label>
+
+        <input
+            type="number"
+            name="free_sugar"
+            step="0.01"
+            value="0"
+        >
+
+
+        <label>
+            Fibre (g)
+        </label>
+
+        <input
+            type="number"
+            name="fibre"
+            step="0.01"
+            value="0"
+        >
+
+
+        <label>
+            Sodium (mg)
+        </label>
+
+        <input
+            type="number"
+            name="sodium"
+            step="0.01"
+            value="0"
+        >
+
+
+        <label>
+            Calcium (mg)
+        </label>
+
+        <input
+            type="number"
+            name="calcium"
+            step="0.01"
+            value="0"
+        >
+
+
+        <label>
+            Iron (mg)
+        </label>
+
+        <input
+            type="number"
+            name="iron"
+            step="0.01"
+            value="0"
+        >
+
+
+        <label>
+            Vitamin C (mg)
+        </label>
+
+        <input
+            type="number"
+            name="vitamin_c"
+            step="0.01"
+            value="0"
+        >
+
+
+        <label>
+            Folate (µg)
+        </label>
+
+        <input
+            type="number"
+            name="folate"
+            step="0.01"
+            value="0"
+        >
+
+    </div>
+
+
+    <!-- Notes -->
+
+    <label for="notes">
+        Notes
+    </label>
+
+    <textarea
+        id="notes"
+        name="notes"
+        rows="4"
+        placeholder="Optional notes..."
+    ></textarea>
+
+
+    <button
+        type="submit"
+        class="button"
+    >
+        Add to Diary
+    </button>
+
+</form>
+
+
+<script>
+
+function setWeight() {
+
+    const select =
+        document.getElementById("weight");
+
+    const input =
+        document.getElementById("weight_input");
+
+    if (select.value !== "custom" &&
+        select.value !== "") {
+
+        input.value =
+            select.value;
+    }
+
+}
+
+
+function toggleCustomNutrition() {
+
+    const checkbox =
+        document.getElementById("custom_food");
+
+    const section =
+        document.getElementById("custom-nutrition");
+
+    if (checkbox.checked) {
+
+        section.style.display =
+            "block";
+
+    } else {
+
+        section.style.display =
+            "none";
+    }
+
+}
+
+</script>
+
+{% endblock %}

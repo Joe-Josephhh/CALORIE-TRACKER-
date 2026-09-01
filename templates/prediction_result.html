@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}
+Prediction Result
+{% endblock %}
+
+
+{% block content %}
+
+<div class="page-header">
+
+    <h1>
+        Prediction Result
+    </h1>
+
+</div>
+
+
+<div class="card">
+
+    <h2>
+        Top Predictions
+    </h2>
+
+
+    {% for prediction in predictions %}
+
+    <div class="prediction-row">
+
+        <div>
+
+            <strong>
+                {{ prediction.rank }}.
+                {{ prediction.food }}
+            </strong>
+
+        </div>
+
+        <div>
+
+            {{ "%.2f"|format(
+                prediction.confidence
+            ) }}%
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+
+<div class="card">
+
+    <h2>
+        Best Guess
+    </h2>
+
+    <h1 class="best-food">
+
+        {{ predictions[0].food }}
+
+    </h1>
+
+    <p>
+
+        Confidence:
+
+        <strong>
+
+            {{ "%.2f"|format(
+                predictions[0].confidence
+            ) }}%
+
+        </strong>
+
+    </p>
+
+
+    <a
+        href="{{ url_for(
+            'log_food',
+            food=predictions[0].food
+        ) }}"
+        class="button"
+    >
+        Accept Prediction
+    </a>
+
+</div>
+
+
+<div class="card">
+
+    <h2>
+        Choose Another Food
+    </h2>
+
+    <p>
+        If the prediction is incorrect,
+        search the nutrition database.
+    </p>
+
+    <form
+        action="{{ url_for('foods') }}"
+        method="GET"
+    >
+
+        <input
+            type="text"
+            name="q"
+            placeholder="Search food..."
+            required
+        >
+
+        <button
+            type="submit"
+            class="button"
+        >
+            Search
+        </button>
+
+    </form>
+
+</div>
+
+
+<div class="card">
+
+    <h2>
+        Add Custom Food
+    </h2>
+
+    <p>
+        Use this if the food does not exist
+        in the nutrition database.
+    </p>
+
+    <a
+        href="{{ url_for('log_food') }}"
+        class="button secondary"
+    >
+        Add Custom Food
+    </a>
+
+</div>
+
+{% endblock %}

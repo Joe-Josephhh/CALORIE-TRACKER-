@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}
+Diary History
+{% endblock %}
+
+
+{% block content %}
+
+<div class="page-header">
+
+    <h1>
+        Diary History
+    </h1>
+
+    <p>
+        View your food diary between two dates.
+    </p>
+
+</div>
+
+
+<div class="card">
+
+    <form
+        method="POST"
+        action="{{ url_for('history') }}"
+    >
+
+        <label>
+            Start Date
+        </label>
+
+        <input
+            type="date"
+            name="start_date"
+            value="{{ start_date or '' }}"
+            required
+        >
+
+
+        <label>
+            End Date
+        </label>
+
+        <input
+            type="date"
+            name="end_date"
+            value="{{ end_date or '' }}"
+            required
+        >
+
+
+        <button
+            type="submit"
+            class="button"
+        >
+            View History
+        </button>
+
+    </form>
+
+</div>
+
+
+{% if grouped %}
+
+<div class="card">
+
+    <h2>
+        Summary
+    </h2>
+
+    <div class="summary-grid">
+
+        <div class="summary-card">
+
+            <span>
+                Meals
+            </span>
+
+            <strong>
+                {{ entries|length }}
+            </strong>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <span>
+                Calories
+            </span>
+
+            <strong>
+                {{ "%.1f"|format(
+                    totals["Calories (kcal)"]
+                ) }}
+            </strong>
+
+            <small>
+                kcal
+            </small>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <span>
+                Protein
+            </span>
+
+            <strong>
+                {{ "%.1f"|format(
+                    totals["Protein (g)"]
+                ) }}
+            </strong>
+
+            <small>
+                g
+            </small>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <span>
+                Fats
+            </span>
+
+            <strong>
+                {{ "%.1f"|format(
+                    totals["Fats (g)"]
+                ) }}
+            </strong>
+
+            <small>
+                g
+            </small>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+{% for date, date_entries in grouped.items() %}
+
+<div class="card">
+
+    <h2>
+        {{ date }}
+    </h2>
+
+
+    {% for entry in date_entries %}
+
+    <div class="diary-entry">
+
+        <div>
+
+            <h3>
+                {{ entry.dish_name }}
+            </h3>
+
+            <p>
+
+                {{ entry.time }}
+
+                |
+
+                {{ entry.meal_type|capitalize }}
+
+                |
+
+                {{ entry.weight }} g
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+
+                {{ "%.1f"|format(
+                    entry.nutrition[
+                        "Calories (kcal)"
+                    ]
+                ) }}
+
+                kcal
+
+            </strong>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% endfor %}
+
+
+{% elif entries is not none %}
+
+<div class="card empty-state">
+
+    <h2>
+        No entries found
+    </h2>
+
+    <p>
+        There are no food entries between
+        the selected dates.
+    </p>
+
+</div>
+
+{% endif %}
+
+{% endblock %}

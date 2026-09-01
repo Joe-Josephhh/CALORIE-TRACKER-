@@ -1,0 +1,18 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# TensorFlow / ML generated files
+outputs/
+checkpoints/
+
+# Datasets
+DataSet/
+dataset/
+datasets/
+
+# Python cache
+*.pyo
+*.pyd

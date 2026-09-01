@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}
+Scan Food
+{% endblock %}
+
+
+{% block content %}
+
+<div class="page-header">
+
+    <h1>
+        Scan Food
+    </h1>
+
+    <p>
+        Upload an image of your food.
+    </p>
+
+</div>
+
+
+<div class="card upload-card">
+
+    <form
+        action="{{ url_for('predict') }}"
+        method="POST"
+        enctype="multipart/form-data"
+    >
+
+        <label for="image">
+            Select food image
+        </label>
+
+        <input
+            type="file"
+            id="image"
+            name="image"
+            accept=".jpg,.jpeg,.png,.bmp,.gif,.webp"
+            required
+        >
+
+        <p class="help-text">
+            Maximum file size: 10 MB
+        </p>
+
+        <button
+            type="submit"
+            class="button"
+        >
+            Predict Food
+        </button>
+
+    </form>
+
+</div>
+
+{% endblock %}

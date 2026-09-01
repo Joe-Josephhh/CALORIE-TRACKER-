@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Calorie Dashboard</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+    <div class="dashboard-header">
+
+        <h1>📊 Daily Calorie Dashboard</h1>
+
+        <p>{{ date }}</p>
+
+    </div>
+
+
+    <!-- SUMMARY -->
+
+    <div class="summary-grid">
+
+        <div class="summary-card">
+
+            <h3>🍛 Calories In</h3>
+
+            <div class="summary-number">
+
+                {{ calories_in }}
+
+            </div>
+
+            <p>kcal consumed</p>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <h3>🏃 Calories Out</h3>
+
+            <div class="summary-number">
+
+                {{ calories_out }}
+
+            </div>
+
+            <p>kcal burned</p>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <h3>⚖️ Net Calories</h3>
+
+            <div class="summary-number">
+
+                {{ net_calories }}
+
+            </div>
+
+            <p>kcal</p>
+
+        </div>
+
+    </div>
+
+
+    <!-- FOOD -->
+
+    <div class="dashboard-section">
+
+        <h2>🍛 Today's Food</h2>
+
+        {% if food_entries %}
+
+            {% for food in food_entries %}
+
+                <div class="record-item">
+
+                    <div>
+
+                        <strong>
+                            {{ food["dish_name"] }}
+                        </strong>
+
+                        <small>
+
+                            {{ food["meal_type"] }}
+
+                            |
+
+                            {{ food["weight"] }} g
+
+                        </small>
+
+                    </div>
+
+
+                    <strong>
+
+                        {{ food["nutrition"]["Calories (kcal)"] }}
+
+                        kcal
+
+                    </strong>
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p class="empty-message">
+
+                No food recorded today.
+
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- EXERCISE -->
+
+    <div class="dashboard-section">
+
+        <h2>🏃 Today's Exercise</h2>
+
+        {% if exercise_entries %}
+
+            {% for exercise in exercise_entries %}
+
+                <div class="record-item">
+
+                    <div>
+
+                        <strong>
+
+                            {{ exercise["activity"] }}
+
+                        </strong>
+
+                        <small>
+
+                            MET: {{ exercise["met"] }}
+
+                            |
+
+                            {{ exercise["duration_minutes"] }} min
+
+                            |
+
+                            {{ exercise["weight_kg"] }} kg
+
+                        </small>
+
+                    </div>
+
+
+                    <strong>
+
+                        {{ exercise["calories_burned"] }}
+
+                        kcal
+
+                    </strong>
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p class="empty-message">
+
+                No exercise recorded today.
+
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- NAVIGATION -->
+
+    <div class="dashboard-navigation">
+
+        <a href="/">🏠 Home</a>
+
+        <a href="/calorie-out">🏃 Calorie Out</a>
+
+        <a href="/diary">📖 Food Diary</a>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
