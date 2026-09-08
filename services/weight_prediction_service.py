@@ -110,37 +110,47 @@ def train_lstm_and_predict(series, forecast_days=30, window_size=7):
         for s in series
     ], dtype=np.float32)
 
+    mean = features.mean(axis=0)
+    std = features.std(axis=0) + 1e-5
+    norm_features = (features - mean) / std
+
     X, y = [], []
     for i in range(len(features) - window_size):
-        X.append(features[i:i + window_size])
-        # Target: next day's weight
-        y.append(features[i + window_size, 3])
+        X.append(norm_features[i:i + window_size])
+        # Target: daily delta in weight (prevents unnormalized scale saturation)
+        y.append(features[i + window_size, 3] - features[i + window_size - 1, 3])
 
     X = np.array(X)
     y = np.array(y)
 
     model = build_lstm_model(input_shape=(window_size, 4))
     # Quick fine-tuning epochs for responsive web inference
-    model.fit(X, y, epochs=15, batch_size=4, verbose=0)
+    model.fit(X, y, epochs=25, batch_size=4, verbose=0)
 
     # Iterative rolling prediction
-    current_window = features[-window_size:].copy()
+    current_norm_window = norm_features[-window_size:].copy()
+    current_weight = float(series[-1]["weight_kg"])
     avg_in = float(np.mean([s["calories_in"] for s in series[-window_size:]]))
     avg_out = float(np.mean([s["calories_out"] for s in series[-window_size:]]))
     avg_net = avg_in - avg_out
 
     predicted_weights = []
-    for _ in range(forecast_days):
-        input_data = current_window.reshape(1, window_size, 4)
-        next_weight = float(model.predict(input_data, verbose=0)[0, 0])
-        # Cap daily rate of change to realistic bounds (max 0.4 kg/day)
-        prev_weight = current_window[-1, 3]
-        clamped_weight = max(prev_weight - 0.4, min(prev_weight + 0.4, next_weight))
-        predicted_weights.append(round(clamped_weight, 2))
+    running_weight = current_weight
 
-        # Roll window forward
-        new_row = np.array([avg_in, avg_out, avg_net, clamped_weight], dtype=np.float32)
-        current_window = np.vstack([current_window[1:], new_row])
+    for _ in range(forecast_days):
+        input_data = current_norm_window.reshape(1, window_size, 4)
+        pred_delta = float(model.predict(input_data, verbose=0)[0, 0])
+        # Cap daily rate of change to realistic bounds (max 0.25 kg/day)
+        clamped_delta = max(-0.25, min(0.25, pred_delta))
+        running_weight += clamped_delta
+        # Keep within physiological human boundaries
+        running_weight = max(25.0, min(350.0, running_weight))
+        predicted_weights.append(round(running_weight, 2))
+
+        # Roll window forward with standardized values
+        new_row_unnorm = np.array([avg_in, avg_out, avg_net, running_weight], dtype=np.float32)
+        new_row_norm = (new_row_unnorm - mean) / std
+        current_norm_window = np.vstack([current_norm_window[1:], new_row_norm])
 
     return predicted_weights
 
@@ -239,7 +249,8 @@ def predict_weight_trajectory(user_id, forecast_days=30):
 
     # 5. Personalized Recommendations & Insights
     insights = []
-    if goal.lower() == "lose weight":
+    goal_str = goal.lower()
+    if "loss" in goal_str or "lose" in goal_str:
         if daily_energy_balance < -200:
             insights.append({
                 "type": "success",
@@ -258,7 +269,7 @@ def predict_weight_trajectory(user_id, forecast_days=30):
                 "title": "Mild Deficit",
                 "text": f"You have a small deficit of {abs(daily_energy_balance):.0f} kcal/day. Increasing daily steps or exercise can accelerate your results."
             })
-    elif goal.lower() == "gain weight":
+    elif "gain" in goal_str:
         if daily_energy_balance > 250:
             insights.append({
                 "type": "success",

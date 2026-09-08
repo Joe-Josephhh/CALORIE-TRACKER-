@@ -57,6 +57,10 @@ from services.weight_prediction_service import (
     predict_weight_trajectory
 )
 
+from services.coach_service import (
+    get_daily_calorie_coach
+)
+
 from database import (
     init_database,
     create_user,
@@ -775,11 +779,17 @@ def diary():
         entries
     )
 
+    coach = get_daily_calorie_coach(
+        user_id,
+        today
+    )
+
     return render_template(
         "diary.html",
         entries=entries,
         totals=totals,
-        date=today
+        date=today,
+        coach=coach
     )
 
 
@@ -822,11 +832,17 @@ def diary_date(date):
         entries
     )
 
+    coach = get_daily_calorie_coach(
+        user_id,
+        date
+    )
+
     return render_template(
         "diary.html",
         entries=entries,
         totals=totals,
-        date=date
+        date=date,
+        coach=coach
     )
 
 
@@ -1285,6 +1301,7 @@ def dashboard():
     current_weight = latest_w["weight_kg"] if latest_w else None
     weight_stats = get_weight_stats(user_id)
     profile = get_user_profile(user_id)
+    coach = get_daily_calorie_coach(user_id, today)
 
     return render_template(
         "dashboard.html",
@@ -1297,7 +1314,8 @@ def dashboard():
         food_totals=food_totals,
         current_weight=current_weight,
         weight_stats=weight_stats,
-        profile=profile
+        profile=profile,
+        coach=coach
     )
 
 

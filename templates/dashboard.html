@@ -33,6 +33,138 @@ Dashboard | Calorie Tracker
     </a>
 </div>
 
+<!-- Smart Calorie Coach & Activity Burn-off Recommender -->
+{% if coach and coach.has_profile %}
+<div class="card" style="margin-bottom: 25px; border-left: 6px solid {% if coach.is_over_budget %}#ef4444{% else %}#10b981{% endif %}; background: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-radius: 12px; padding: 22px;">
+    
+    <!-- Header row: Goal badge, title, and target stats -->
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 22px;">🎯</span>
+                <h2 style="margin: 0; font-size: 20px; color: #1e293b;">Smart Calorie Coach</h2>
+                <span style="background: {% if coach.goal_type == 'loss' %}#ecfdf5; color: #065f46;{% elif coach.goal_type == 'gain' %}#eff6ff; color: #1e40af;{% else %}#f8fafc; color: #334155;{% endif %} font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;">
+                    {{ coach.goal }}
+                </span>
+            </div>
+            <p style="margin: 4px 0 0 32px; color: #64748b; font-size: 13px;">
+                {{ coach.target_description }}
+            </p>
+        </div>
+
+        <div style="text-align: right;">
+            <div style="font-size: 12px; color: #64748b; font-weight: 500;">Daily Target Budget</div>
+            <div style="font-size: 22px; font-weight: 800; color: #1e293b;">
+                {{ "%.0f"|format(coach.daily_target) }} <small style="font-size: 13px; font-weight: 500; color: #64748b;">kcal</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div style="margin-bottom: 18px;">
+        <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+            <span style="color: #475569; font-weight: 600;">
+                Net Consumed: <strong>{{ "%.0f"|format(coach.net_intake) }}</strong> kcal (In: {{ "%.0f"|format(coach.calories_in) }} − Burned: {{ "%.0f"|format(coach.calories_out) }})
+            </span>
+            <span style="font-weight: 700; color: {% if coach.is_over_budget %}#dc2626{% else %}#059669{% endif %};">
+                {{ "%.0f"|format(coach.pct_used) }}% of daily budget
+            </span>
+        </div>
+        <div style="background: #e2e8f0; height: 12px; border-radius: 6px; overflow: hidden; position: relative;">
+            <div style="background: {% if coach.is_over_budget %}linear-gradient(90deg, #f59e0b, #ef4444){% else %}linear-gradient(90deg, #10b981, #059669){% endif %}; height: 100%; width: {{ coach.progress_bar_pct }}%; border-radius: 6px; transition: width 0.5s ease;"></div>
+        </div>
+    </div>
+
+    <!-- Coach Status Box -->
+    <div style="background: {% if coach.is_over_budget %}#fef2f2{% else %}#f0fdf4{% endif %}; border-radius: 10px; padding: 14px 18px; margin-bottom: {% if coach.is_over_budget %}20px{% else %}0{% endif %}; border: 1px solid {% if coach.is_over_budget %}#fecaca{% else %}#bbf7d0{% endif %};">
+        <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <span style="font-size: 24px; line-height: 1;">{% if coach.is_over_budget %}⚠️{% else %}🥗{% endif %}</span>
+            <div style="flex: 1;">
+                <strong style="color: {% if coach.is_over_budget %}#991b1b{% else %}#166534{% endif %}; font-size: 15px; display: block; margin-bottom: 3px;">
+                    {{ coach.status_title }} &bull; 
+                    {% if coach.is_over_budget %}
+                        {{ "%.0f"|format(coach.excess_calories) }} kcal over target
+                    {% else %}
+                        {{ "%.0f"|format(coach.remaining) }} kcal remaining today
+                    {% endif %}
+                </strong>
+                <p style="margin: 0; font-size: 14px; color: {% if coach.is_over_budget %}#7f1d1d{% else %}#14532d{% endif %}; line-height: 1.4;">
+                    {{ coach.status_message }} <em>{{ coach.tip }}</em>
+                </p>
+            </div>
+            {% if not coach.is_over_budget %}
+            <div>
+                <a href="{{ url_for('log_food') }}" class="button" style="background: #10b981; margin: 0; padding: 6px 14px; font-size: 13px; font-weight: 600; white-space: nowrap;">
+                    + Log Meal
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Burn-off Activity Suggestions if Over Budget -->
+    {% if coach.is_over_budget and coach.burn_off_suggestions %}
+    <div style="margin-top: 20px; padding-top: 18px; border-top: 1px dashed #cbd5e1;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div>
+                <h3 style="margin: 0; font-size: 16px; color: #1e293b; display: flex; align-items: center; gap: 6px;">
+                    🔥 Quick Activity Burn-Off Suggestions
+                </h3>
+                <p style="margin: 2px 0 0 0; color: #64748b; font-size: 13px;">
+                    Burn off the <strong>{{ "%.0f"|format(coach.excess_calories) }} kcal</strong> excess with any of these tailored activities (calculated for your {{ "%.1f"|format(coach.current_weight) }} kg weight):
+                </p>
+            </div>
+            <a href="{{ url_for('calorie_out') }}" style="font-size: 13px; color: #ea580c; text-decoration: underline; font-weight: 600; white-space: nowrap;">
+                View All Activities &rarr;
+            </a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+            {% for act in coach.burn_off_suggestions %}
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s ease;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 20px;">{{ act.icon }}</span>
+                        <strong style="font-size: 13px; color: #1e293b;">{{ act.name }}</strong>
+                    </div>
+                    <div style="margin-top: 4px; font-size: 12px; color: #64748b;">
+                        MET {{ act.met }} &bull; -{{ "%.0f"|format(act.calories_burned) }} kcal
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 18px; font-weight: 800; color: #ea580c;">
+                        {{ act.duration_minutes }} <span style="font-size: 11px; font-weight: 600; color: #64748b;">mins</span>
+                    </div>
+                    <a href="{{ url_for('calorie_out') }}" style="font-size: 11px; color: #ea580c; font-weight: 600; text-decoration: underline;">
+                        + Log
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% elif coach and not coach.has_profile %}
+<div class="card" style="margin-bottom: 25px; border-left: 5px solid #3b82f6; background: #eff6ff; padding: 16px 20px; border-radius: 10px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 24px;">💡</span>
+            <div>
+                <strong style="color: #1e40af; font-size: 15px;">Enable Smart Calorie Coach</strong>
+                <p style="margin: 2px 0 0; color: #3b82f6; font-size: 13px;">
+                    Set up your biological profile and record your body weight to get daily calorie targets and automated workout burn-off recommendations.
+                </p>
+            </div>
+        </div>
+        <a href="{{ url_for('profile') }}" class="button" style="background: #2563eb; margin: 0; padding: 7px 14px; font-size: 13px; white-space: nowrap;">
+            Set Up Profile &rarr;
+        </a>
+    </div>
+</div>
+{% endif %}
+
 <!-- Summary Metrics Grid -->
 <div class="summary-grid">
 
