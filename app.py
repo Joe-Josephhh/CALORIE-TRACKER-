@@ -23,8 +23,7 @@ from config import (
     UPLOAD_FOLDER,
     ALLOWED_EXTENSIONS,
     PRESET_WEIGHTS,
-    MEAL_TYPES,
-    DIARY_CSV
+    MEAL_TYPES
 )
 
 from services.calorie_burn_service import (
@@ -51,9 +50,7 @@ from services.diary_service import (
     delete_food_entry,
     calculate_totals,
     group_by_date,
-    export_user_diary_csv,
-    load_diary,
-    diary_to_csv
+    export_user_diary_csv
 )
 
 from services.weight_prediction_service import (
@@ -86,10 +83,7 @@ from database import (
     get_calorie_out_range,
     delete_calorie_out_record,
     get_user_daily_summary,
-    get_user_history_daily,
-    add_exercise_record,
-    get_exercise_by_date,
-    get_exercise_total
+    get_user_history_daily
 )
 
 # =========================================================

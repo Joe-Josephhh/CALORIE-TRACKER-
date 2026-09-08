@@ -1,11 +1,8 @@
-import json
 import csv
 from datetime import datetime
 from pathlib import Path
 
 from config import (
-    DIARY_FILE,
-    DIARY_CSV,
     UPLOAD_FOLDER
 )
 
@@ -234,50 +231,3 @@ def export_user_diary_csv(user_id, output_path=None):
         writer.writerows(csv_data)
 
     return output_path
-
-
-# =========================================================
-# LEGACY FALLBACKS
-# =========================================================
-
-def load_diary():
-    if not DIARY_FILE.exists():
-        return []
-    try:
-        with open(DIARY_FILE, "r", encoding="utf-8") as file:
-            return json.load(file)
-    except (json.JSONDecodeError, OSError):
-        return []
-
-
-def save_diary(diary):
-    with open(DIARY_FILE, "w", encoding="utf-8") as file:
-        json.dump(diary, file, indent=2, ensure_ascii=False)
-
-
-def diary_to_csv(diary=None):
-    if diary is None:
-        diary = load_diary()
-    if not diary:
-        return False
-    csv_data = []
-    for entry in diary:
-        nutrition = entry.get("nutrition", {})
-        csv_data.append({
-            "Date": entry.get("date", ""),
-            "Time": entry.get("time", ""),
-            "Dish": entry.get("dish_name", ""),
-            "Weight (g)": entry.get("weight", 0),
-            "Meal Type": entry.get("meal_type", ""),
-            "Calories": nutrition.get("Calories (kcal)", 0),
-            "Protein (g)": nutrition.get("Protein (g)", 0),
-            "Carbs (g)": nutrition.get("Carbohydrates (g)", 0),
-            "Fats (g)": nutrition.get("Fats (g)", 0),
-            "Notes": entry.get("notes", "")
-        })
-    fieldnames = list(csv_data[0].keys())
-    with open(DIARY_CSV, "w", newline="", encoding="utf-8") as file:
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(csv_data)
-    return True

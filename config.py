@@ -34,19 +34,6 @@ NUTRITION_CSV = Path(
     )
 )
 
-DIARY_FILE = Path(
-    os.getenv(
-        "DIARY_FILE",
-        BASE_DIR / "data" / "food_diary.json"
-    )
-)
-
-DIARY_CSV = Path(
-    os.getenv(
-        "DIARY_CSV",
-        BASE_DIR / "data" / "food_diary.csv"
-    )
-)
 
 UPLOAD_FOLDER = BASE_DIR / "uploads"
 
@@ -114,12 +101,7 @@ UPLOAD_FOLDER.mkdir(
     exist_ok=True
 )
 
-DIARY_FILE.parent.mkdir(
-    parents=True,
-    exist_ok=True
-)
-
-DIARY_CSV.parent.mkdir(
+(BASE_DIR / "data").mkdir(
     parents=True,
     exist_ok=True
 )
