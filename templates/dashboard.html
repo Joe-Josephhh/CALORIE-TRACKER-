@@ -1,220 +1,214 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
+{% block title %}
+Dashboard | Calorie Tracker
+{% endblock %}
 
-    <meta charset="UTF-8">
+{% block content %}
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<!-- Header -->
+<div class="page-header" style="text-align: center; margin-bottom: 25px;">
+    <h1>📊 Daily Calorie Dashboard</h1>
+    <p style="color: #64748b; margin-top: 4px;">
+        Overview for <strong>{{ date }}</strong> &bull; Welcome back, <strong>{{ current_user['username'] if current_user else 'User' }}</strong>!
+    </p>
+</div>
 
-    <title>Calorie Dashboard</title>
+<!-- Quick Action Shortcuts -->
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 30px;">
+    <a href="{{ url_for('log_food') }}" class="button" style="background: #2563eb; margin: 0; padding: 9px 16px; font-size: 14px;">
+        + Log Food
+    </a>
+    <a href="{{ url_for('food_scan') }}" class="button" style="background: #0d9488; margin: 0; padding: 9px 16px; font-size: 14px;">
+        📷 Scan Food
+    </a>
+    <a href="{{ url_for('calorie_out') }}" class="button" style="background: #ea580c; margin: 0; padding: 9px 16px; font-size: 14px;">
+        🔥 Log Activity
+    </a>
+    <a href="{{ url_for('profile') }}" class="button" style="background: #7c3aed; margin: 0; padding: 9px 16px; font-size: 14px;">
+        ⚖️ Weight Tracker
+    </a>
+    <a href="{{ url_for('diary') }}" class="button secondary" style="margin: 0; padding: 9px 16px; font-size: 14px;">
+        📖 Food Diary
+    </a>
+</div>
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/style.css') }}"
-    >
+<!-- Summary Metrics Grid -->
+<div class="summary-grid">
 
-</head>
-
-<body>
-
-<div class="dashboard-container">
-
-    <div class="dashboard-header">
-
-        <h1>📊 Daily Calorie Dashboard</h1>
-
-        <p>{{ date }}</p>
-
-    </div>
-
-
-    <!-- SUMMARY -->
-
-    <div class="summary-grid">
-
-        <div class="summary-card">
-
-            <h3>🍛 Calories In</h3>
-
-            <div class="summary-number">
-
-                {{ calories_in }}
-
-            </div>
-
-            <p>kcal consumed</p>
-
+    <!-- 1. Calories In -->
+    <div class="summary-card" style="border-top: 4px solid #2563eb;">
+        <h3 style="margin-top: 0; color: #1e3a8a; font-size: 16px;">🍛 Calories In</h3>
+        <div class="summary-number" style="color: #2563eb;">
+            {{ "%.1f"|format(calories_in) }}
         </div>
-
-
-        <div class="summary-card">
-
-            <h3>🏃 Calories Out</h3>
-
-            <div class="summary-number">
-
-                {{ calories_out }}
-
-            </div>
-
-            <p>kcal burned</p>
-
+        <p style="margin-bottom: 10px;">kcal consumed</p>
+        <div style="font-size: 12px; color: #64748b; background: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+            <strong>P:</strong> {{ "%.1f"|format(food_totals.get("Protein (g)", 0)) }}g &bull;
+            <strong>C:</strong> {{ "%.1f"|format(food_totals.get("Carbohydrates (g)", 0)) }}g &bull;
+            <strong>F:</strong> {{ "%.1f"|format(food_totals.get("Fats (g)", 0)) }}g
         </div>
+    </div>
 
-
-        <div class="summary-card">
-
-            <h3>⚖️ Net Calories</h3>
-
-            <div class="summary-number">
-
-                {{ net_calories }}
-
-            </div>
-
-            <p>kcal</p>
-
+    <!-- 2. Calories Out -->
+    <div class="summary-card" style="border-top: 4px solid #ea580c;">
+        <h3 style="margin-top: 0; color: #9a3412; font-size: 16px;">🔥 Calories Out</h3>
+        <div class="summary-number" style="color: #ea580c;">
+            {{ "%.1f"|format(calories_out) }}
         </div>
-
+        <p style="margin-bottom: 10px;">kcal burned</p>
+        <div style="font-size: 12px; color: #64748b; background: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+            {{ exercise_entries|length }} {{ "activity" if exercise_entries|length == 1 else "activities" }} logged today
+        </div>
     </div>
 
-
-    <!-- FOOD -->
-
-    <div class="dashboard-section">
-
-        <h2>🍛 Today's Food</h2>
-
-        {% if food_entries %}
-
-            {% for food in food_entries %}
-
-                <div class="record-item">
-
-                    <div>
-
-                        <strong>
-                            {{ food["dish_name"] }}
-                        </strong>
-
-                        <small>
-
-                            {{ food["meal_type"] }}
-
-                            |
-
-                            {{ food["weight"] }} g
-
-                        </small>
-
-                    </div>
-
-
-                    <strong>
-
-                        {{ food["nutrition"]["Calories (kcal)"] }}
-
-                        kcal
-
-                    </strong>
-
-                </div>
-
-            {% endfor %}
-
-        {% else %}
-
-            <p class="empty-message">
-
-                No food recorded today.
-
-            </p>
-
-        {% endif %}
-
+    <!-- 3. Net Calories -->
+    <div class="summary-card" style="border-top: 4px solid {% if net_calories > 0 %}#f59e0b{% elif net_calories < 0 %}#10b981{% else %}#6b7280{% endif %};">
+        <h3 style="margin-top: 0; font-size: 16px;">⚖️ Net Calories</h3>
+        <div class="summary-number" style="color: {% if net_calories > 0 %}#b45309{% elif net_calories < 0 %}#047857{% else %}#374151{% endif %};">
+            {{ "%+.1f"|format(net_calories) }}
+        </div>
+        <p style="margin-bottom: 10px;">kcal net (In − Out)</p>
+        <div>
+            {% if net_calories > 0 %}
+            <span style="display: inline-block; background: #fef3c7; color: #92400e; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                Calorie Surplus
+            </span>
+            {% elif net_calories < 0 %}
+            <span style="display: inline-block; background: #d1fae5; color: #065f46; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                Calorie Deficit
+            </span>
+            {% else %}
+            <span style="display: inline-block; background: #f3f4f6; color: #374151; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                Balanced
+            </span>
+            {% endif %}
+        </div>
     </div>
 
-
-    <!-- EXERCISE -->
-
-    <div class="dashboard-section">
-
-        <h2>🏃 Today's Exercise</h2>
-
-        {% if exercise_entries %}
-
-            {% for exercise in exercise_entries %}
-
-                <div class="record-item">
-
-                    <div>
-
-                        <strong>
-
-                            {{ exercise["activity"] }}
-
-                        </strong>
-
-                        <small>
-
-                            MET: {{ exercise["met"] }}
-
-                            |
-
-                            {{ exercise["duration_minutes"] }} min
-
-                            |
-
-                            {{ exercise["weight_kg"] }} kg
-
-                        </small>
-
-                    </div>
-
-
-                    <strong>
-
-                        {{ exercise["calories_burned"] }}
-
-                        kcal
-
-                    </strong>
-
-                </div>
-
-            {% endfor %}
-
-        {% else %}
-
-            <p class="empty-message">
-
-                No exercise recorded today.
-
-            </p>
-
-        {% endif %}
-
-    </div>
-
-
-    <!-- NAVIGATION -->
-
-    <div class="dashboard-navigation">
-
-        <a href="/">🏠 Home</a>
-
-        <a href="/calorie-out">🏃 Calorie Out</a>
-
-        <a href="/diary">📖 Food Diary</a>
-
+    <!-- 4. Current Weight -->
+    <div class="summary-card" style="border-top: 4px solid #7c3aed;">
+        <h3 style="margin-top: 0; color: #5b21b6; font-size: 16px;">⚖️ Current Weight</h3>
+        <div class="summary-number" style="color: #7c3aed;">
+            {% if current_weight is not none %}
+                {{ "%.1f"|format(current_weight) }} <small style="font-size: 16px; font-weight: normal; color: #7c3aed;">kg</small>
+            {% else %}
+                <span style="font-size: 26px; color: #94a3b8;">Not set</span>
+            {% endif %}
+        </div>
+        <p style="margin-bottom: 10px;">
+            {% if weight_stats and weight_stats.total_change is not none %}
+                {{ "%+.1f"|format(weight_stats.total_change) }} kg overall
+            {% else %}
+                Body Weight
+            {% endif %}
+        </p>
+        <div style="font-size: 12px;">
+            <a href="{{ url_for('profile') }}" style="color: #7c3aed; text-decoration: underline;">
+                Manage Weight &rarr;
+            </a>
+        </div>
     </div>
 
 </div>
 
-</body>
+<!-- Content Grid: Meals & Exercises -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 25px; margin-top: 10px;">
 
-</html>
+    <!-- 1. Today's Meals -->
+    <div class="dashboard-section" style="margin-bottom: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">
+            <h2 style="margin: 0; font-size: 20px;">🍛 Today's Meals</h2>
+            <a href="{{ url_for('log_food') }}" style="font-size: 13px; color: #2563eb; text-decoration: none; font-weight: 600;">
+                + Log Food
+            </a>
+        </div>
+
+        {% if food_entries %}
+            <div class="records-list">
+                {% for food in food_entries %}
+                <div class="record-item">
+                    <div>
+                        <strong style="font-size: 15px; color: #1e293b;">
+                            {{ food["dish_name"] }}
+                        </strong>
+                        <small>
+                            {{ food["meal_type"]|capitalize }} &bull; {{ food["weight"] }} g
+                            {% if food["notes"] %} &bull; <em>{{ food["notes"] }}</em>{% endif %}
+                        </small>
+                        <small style="color: #64748b; margin-top: 3px;">
+                            P: {{ "%.1f"|format(food["nutrition"]["Protein (g)"]) }}g &bull;
+                            C: {{ "%.1f"|format(food["nutrition"]["Carbohydrates (g)"]) }}g &bull;
+                            F: {{ "%.1f"|format(food["nutrition"]["Fats (g)"]) }}g
+                        </small>
+                    </div>
+
+                    <div style="text-align: right; min-width: 90px;">
+                        <strong style="font-size: 16px; color: #2563eb; display: block;">
+                            {{ "%.1f"|format(food["nutrition"]["Calories (kcal)"]) }} kcal
+                        </strong>
+                        {% if food.id %}
+                        <form action="{{ url_for('delete_food', record_id=food.id) }}" method="POST" style="margin-top: 4px;" onsubmit="return confirm('Remove this meal entry?');">
+                            <button type="submit" style="background: none; border: none; color: #dc2626; font-size: 12px; cursor: pointer; padding: 0; text-decoration: underline;">
+                                ✕ Remove
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-message">
+                No food recorded today. <a href="{{ url_for('log_food') }}" style="color: #2563eb; text-decoration: underline;">Log your first meal</a> or <a href="{{ url_for('food_scan') }}" style="color: #0d9488; text-decoration: underline;">scan a dish</a>!
+            </p>
+        {% endif %}
+    </div>
+
+    <!-- 2. Today's Exercise -->
+    <div class="dashboard-section" style="margin-bottom: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">
+            <h2 style="margin: 0; font-size: 20px;">🏃 Today's Exercise</h2>
+            <a href="{{ url_for('calorie_out') }}" style="font-size: 13px; color: #ea580c; text-decoration: none; font-weight: 600;">
+                + Log Activity
+            </a>
+        </div>
+
+        {% if exercise_entries %}
+            <div class="records-list">
+                {% for exercise in exercise_entries %}
+                <div class="record-item">
+                    <div>
+                        <strong style="font-size: 15px; color: #1e293b;">
+                            {{ exercise["activity"] }}
+                        </strong>
+                        <small>
+                            {{ exercise["duration_minutes"] }} mins &bull; MET {{ exercise["met"] }} &bull; {{ exercise["weight_kg"] }} kg
+                        </small>
+                    </div>
+
+                    <div style="text-align: right; min-width: 90px;">
+                        <strong style="font-size: 16px; color: #dc2626; display: block;">
+                            -{{ "%.1f"|format(exercise["calories_burned"]) }} kcal
+                        </strong>
+                        {% if exercise.id %}
+                        <form action="{{ url_for('delete_exercise', record_id=exercise.id) }}" method="POST" style="margin-top: 4px;" onsubmit="return confirm('Remove this exercise entry?');">
+                            <button type="submit" style="background: none; border: none; color: #dc2626; font-size: 12px; cursor: pointer; padding: 0; text-decoration: underline;">
+                                ✕ Remove
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-message">
+                No physical activity recorded today. <a href="{{ url_for('calorie_out') }}" style="color: #ea580c; text-decoration: underline;">Log an exercise</a> to see calories burned!
+            </p>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

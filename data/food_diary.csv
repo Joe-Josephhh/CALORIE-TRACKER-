@@ -23,3 +23,8 @@ Date,Time,Dish,Weight (g),Meal Type,Calories,Protein (g),Carbs (g),Fats (g),Note
 2026-09-01,13:40:32,biryani,255.0,dinner,443.7,18.1,57.37,15.81,
 2026-09-01,13:46:13,biryani,290.0,lunch,504.6,20.59,65.25,17.98,gauri miss kazichath
 2026-09-01,14:00:58,Bhatura,100.0,breakfast,310.0,7.6,41.8,12.5,
+2026-09-02,23:05:28,dal_tadka,200.0,dinner,284.0,14.6,37.6,9.2,best_model not finetuned
+2026-09-02,23:05:46,butter_chicken,200.0,dinner,470.0,36.8,13.6,31.2,
+2026-09-02,23:05:56,biryani,250.0,lunch,435.0,17.75,56.25,15.5,
+2026-09-02,23:06:14,gulab_jamun,50.0,snack,152.5,2.7,22.6,5.6,
+2026-09-02,23:06:35,Potato cauliflower (Aloo gobhi),100.0,breakfast,118.0,3.2,15.8,5.2,

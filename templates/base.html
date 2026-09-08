@@ -42,25 +42,63 @@
                 Home
             </a>
 
-            <a href="{{ url_for('food_scan') }}">
-                Scan Food
-            </a>
+            {% if logged_in %}
 
-            <a href="{{ url_for('log_food') }}">
-                Log Food
-            </a>
+                <a href="{{ url_for('dashboard') }}">
+                    Dashboard
+                </a>
 
-            <a href="{{ url_for('diary') }}">
-                Diary
-            </a>
+                <a href="{{ url_for('food_scan') }}">
+                    Scan Food
+                </a>
 
-            <a href="{{ url_for('history') }}">
-                History
-            </a>
+                <a href="{{ url_for('log_food') }}">
+                    Log Food
+                </a>
 
-            <a href="{{ url_for('foods') }}">
-                Foods
-            </a>
+                <a href="{{ url_for('calorie_out') }}">
+                    Calorie Out
+                </a>
+
+                <a href="{{ url_for('diary') }}">
+                    Diary
+                </a>
+
+                <a href="{{ url_for('history') }}">
+                    History
+                </a>
+
+                <a href="{{ url_for('predict_weight') }}">
+                    Predict Weight
+                </a>
+
+                <a href="{{ url_for('foods') }}">
+                    Foods
+                </a>
+
+                <a href="{{ url_for('profile') }}" class="nav-user-badge">
+                    👤 {{ current_user['username'] if current_user else 'Profile' }}
+                </a>
+
+                <a href="{{ url_for('logout') }}" class="nav-link-logout">
+                    Logout
+                </a>
+
+            {% else %}
+
+                <a href="{{ url_for('foods') }}">
+                    Foods
+                </a>
+
+                <a href="{{ url_for('login') }}">
+                    Log In
+                </a>
+
+                <a href="{{ url_for('register') }}" class="nav-link-btn">
+                    Register
+                </a>
+
+            {% endif %}
 
         </div>
 

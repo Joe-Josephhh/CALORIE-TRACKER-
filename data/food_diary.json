@@ -502,5 +502,110 @@
       "Folate (µg)": 34.0
     },
     "notes": ""
+  },
+  {
+    "date": "2026-09-02",
+    "time": "23:05:28",
+    "dish_name": "dal_tadka",
+    "weight": 200.0,
+    "meal_type": "dinner",
+    "nutrition": {
+      "Calories (kcal)": 284.0,
+      "Protein (g)": 14.6,
+      "Carbohydrates (g)": 37.6,
+      "Fats (g)": 9.2,
+      "Free Sugar (g)": 2.6,
+      "Fibre (g)": 11.2,
+      "Sodium (mg)": 620.0,
+      "Calcium (mg)": 84.0,
+      "Iron (mg)": 4.4,
+      "Vitamin C (mg)": 6.4,
+      "Folate (µg)": 168.0
+    },
+    "notes": "best_model not finetuned"
+  },
+  {
+    "date": "2026-09-02",
+    "time": "23:05:46",
+    "dish_name": "butter_chicken",
+    "weight": 200.0,
+    "meal_type": "dinner",
+    "nutrition": {
+      "Calories (kcal)": 470.0,
+      "Protein (g)": 36.8,
+      "Carbohydrates (g)": 13.6,
+      "Fats (g)": 31.2,
+      "Free Sugar (g)": 6.4,
+      "Fibre (g)": 2.2,
+      "Sodium (mg)": 840.0,
+      "Calcium (mg)": 128.0,
+      "Iron (mg)": 2.8,
+      "Vitamin C (mg)": 15.0,
+      "Folate (µg)": 32.0
+    },
+    "notes": ""
+  },
+  {
+    "date": "2026-09-02",
+    "time": "23:05:56",
+    "dish_name": "biryani",
+    "weight": 250.0,
+    "meal_type": "lunch",
+    "nutrition": {
+      "Calories (kcal)": 435.0,
+      "Protein (g)": 17.75,
+      "Carbohydrates (g)": 56.25,
+      "Fats (g)": 15.5,
+      "Free Sugar (g)": 2.0,
+      "Fibre (g)": 3.25,
+      "Sodium (mg)": 800.0,
+      "Calcium (mg)": 45.0,
+      "Iron (mg)": 2.75,
+      "Vitamin C (mg)": 5.0,
+      "Folate (µg)": 37.5
+    },
+    "notes": ""
+  },
+  {
+    "date": "2026-09-02",
+    "time": "23:06:14",
+    "dish_name": "gulab_jamun",
+    "weight": 50.0,
+    "meal_type": "snack",
+    "nutrition": {
+      "Calories (kcal)": 152.5,
+      "Protein (g)": 2.7,
+      "Carbohydrates (g)": 22.6,
+      "Fats (g)": 5.6,
+      "Free Sugar (g)": 17.9,
+      "Fibre (g)": 0.15,
+      "Sodium (mg)": 56.0,
+      "Calcium (mg)": 78.0,
+      "Iron (mg)": 0.25,
+      "Vitamin C (mg)": 0.0,
+      "Folate (µg)": 4.0
+    },
+    "notes": ""
+  },
+  {
+    "date": "2026-09-02",
+    "time": "23:06:35",
+    "dish_name": "Potato cauliflower (Aloo gobhi)",
+    "weight": 100.0,
+    "meal_type": "breakfast",
+    "nutrition": {
+      "Calories (kcal)": 118.0,
+      "Protein (g)": 3.2,
+      "Carbohydrates (g)": 15.8,
+      "Fats (g)": 5.2,
+      "Free Sugar (g)": 2.2,
+      "Fibre (g)": 3.8,
+      "Sodium (mg)": 286.0,
+      "Calcium (mg)": 34.0,
+      "Iron (mg)": 1.1,
+      "Vitamin C (mg)": 32.8,
+      "Folate (µg)": 48.0
+    },
+    "notes": ""
   }
 ]

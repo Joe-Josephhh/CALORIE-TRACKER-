@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+
+{% block title %}
+AI Weight Prediction | Calorie Tracker
+{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="page-header" style="text-align: center; margin-bottom: 25px;">
+    <h1>🤖 AI &amp; Metabolic Weight Prediction</h1>
+    <p style="color: #64748b;">
+        Personalized 30-day weight forecast based on your metabolic profile, daily calorie intake, and exercise burn.
+    </p>
+</div>
+
+{% if data.status != "success" %}
+    <div class="card" style="text-align: center; padding: 40px 20px; max-width: 600px; margin: 0 auto;">
+        <div style="font-size: 48px; margin-bottom: 15px;">⚖️</div>
+        <h2>Profile Setup Required</h2>
+        <p style="color: #64748b; margin-bottom: 25px; line-height: 1.6;">
+            {{ data.message }}
+        </p>
+        <a href="{{ url_for('profile') }}" class="button">
+            Go to Profile &amp; Weight Setup &rarr;
+        </a>
+    </div>
+{% else %}
+
+    <!-- Model Status Engine Banner -->
+    <div class="card" style="margin-bottom: 25px; border-left: 5px solid {% if data.lstm_unlocked %}#10b981{% else %}#3b82f6{% endif %};">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                    <span style="font-weight: 700; font-size: 16px; color: #1e293b;">Prediction Engine:</span>
+                    {% if data.lstm_unlocked %}
+                        <span style="background: #d1fae5; color: #065f46; font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 20px;">
+                            🔬 {{ data.model_name }}
+                        </span>
+                    {% else %}
+                        <span style="background: #e0f2fe; color: #0369a1; font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 20px;">
+                            ⚡ {{ data.model_name }}
+                        </span>
+                    {% endif %}
+                </div>
+                <p style="color: #64748b; margin: 0; font-size: 14px;">
+                    {% if data.lstm_unlocked %}
+                        Running on your personalized sliding-window time-series habit sequences.
+                    {% else %}
+                        Utilizing the Mifflin-St Jeor metabolic thermodynamic model (7,700 kcal &approx; 1 kg). Log {{ data.days_logged }}/14 days to unlock personalized LSTM Deep Learning neural fine-tuning.
+                    {% endif %}
+                </p>
+            </div>
+            <div>
+                <a href="{{ url_for('profile') }}" style="font-size: 13px; color: #2563eb; text-decoration: underline;">
+                    Edit Profile Target &rarr;
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4 Metabolic Summary Cards -->
+    <div class="summary-grid" style="margin-bottom: 25px;">
+        <!-- Current Weight -->
+        <div class="summary-card" style="border-top: 4px solid #7c3aed;">
+            <span style="color: #64748b; font-size: 14px;">Current Weight</span>
+            <strong style="color: #7c3aed; font-size: 28px; margin: 8px 0;">
+                {{ "%.1f"|format(data.current_weight) }} <small style="font-size: 16px; font-weight: normal;">kg</small>
+            </strong>
+            <small>Started: {{ "%.1f"|format(data.starting_weight) }} kg</small>
+        </div>
+
+        <!-- BMR -->
+        <div class="summary-card" style="border-top: 4px solid #0d9488;">
+            <span style="color: #64748b; font-size: 14px;">Basal Metabolism (BMR)</span>
+            <strong style="color: #0d9488; font-size: 28px; margin: 8px 0;">
+                {{ "%.0f"|format(data.bmr) }}
+            </strong>
+            <small>kcal/day at complete rest</small>
+        </div>
+
+        <!-- TDEE -->
+        <div class="summary-card" style="border-top: 4px solid #2563eb;">
+            <span style="color: #64748b; font-size: 14px;">Maintenance (TDEE)</span>
+            <strong style="color: #2563eb; font-size: 28px; margin: 8px 0;">
+                {{ "%.0f"|format(data.tdee) }}
+            </strong>
+            <small>kcal/day with activity: {{ data.activity_level }}</small>
+        </div>
+
+        <!-- Net Daily Balance -->
+        <div class="summary-card" style="border-top: 4px solid {% if data.daily_energy_balance > 0 %}#f59e0b{% elif data.daily_energy_balance < 0 %}#10b981{% else %}#64748b{% endif %};">
+            <span style="color: #64748b; font-size: 14px;">Net Daily Balance</span>
+            <strong style="color: {% if data.daily_energy_balance > 0 %}#b45309{% elif data.daily_energy_balance < 0 %}#047857{% else %}#334155{% endif %}; font-size: 28px; margin: 8px 0;">
+                {{ "%+.0f"|format(data.daily_energy_balance) }} <small style="font-size: 16px; font-weight: normal;">kcal</small>
+            </strong>
+            <small>
+                {% if data.daily_energy_balance > 0 %}
+                    Calorie Surplus
+                {% elif data.daily_energy_balance < 0 %}
+                    Calorie Deficit
+                {% else %}
+                    Perfect Balance
+                {% endif %}
+            </small>
+        </div>
+    </div>
+
+    <!-- 3 Milestone Forecast Cards -->
+    <div style="margin-bottom: 30px;">
+        <h2 style="font-size: 20px; margin-bottom: 15px;">🎯 Projected Weight Milestones</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
+            <!-- 7 Days -->
+            <div class="card" style="margin-bottom: 0; text-align: center; border: 1px solid #e2e8f0; border-radius: 12px;">
+                <span style="color: #64748b; font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">In 7 Days</span>
+                <div style="font-size: 32px; font-weight: 700; color: #1e293b; margin: 10px 0;">
+                    {{ "%.1f"|format(data.proj_7.weight) }} <small style="font-size: 16px; font-weight: 400;">kg</small>
+                </div>
+                <div style="font-size: 14px; font-weight: 600; color: {% if data.proj_7.change < 0 %}#10b981{% elif data.proj_7.change > 0 %}#f59e0b{% else %}#64748b{% endif %};">
+                    {{ "%+.2f"|format(data.proj_7.change) }} kg from now
+                </div>
+                <small style="color: #94a3b8; display: block; margin-top: 6px;">{{ data.proj_7.date }}</small>
+            </div>
+
+            <!-- 14 Days -->
+            <div class="card" style="margin-bottom: 0; text-align: center; border: 1px solid #e2e8f0; border-radius: 12px;">
+                <span style="color: #64748b; font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">In 14 Days</span>
+                <div style="font-size: 32px; font-weight: 700; color: #1e293b; margin: 10px 0;">
+                    {{ "%.1f"|format(data.proj_14.weight) }} <small style="font-size: 16px; font-weight: 400;">kg</small>
+                </div>
+                <div style="font-size: 14px; font-weight: 600; color: {% if data.proj_14.change < 0 %}#10b981{% elif data.proj_14.change > 0 %}#f59e0b{% else %}#64748b{% endif %};">
+                    {{ "%+.2f"|format(data.proj_14.change) }} kg from now
+                </div>
+                <small style="color: #94a3b8; display: block; margin-top: 6px;">{{ data.proj_14.date }}</small>
+            </div>
+
+            <!-- 30 Days -->
+            <div class="card" style="margin-bottom: 0; text-align: center; border: 1px solid #e2e8f0; border-radius: 12px; background: #faf5ff; border-color: #e9d5ff;">
+                <span style="color: #7c3aed; font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">In 30 Days (1 Month)</span>
+                <div style="font-size: 32px; font-weight: 700; color: #6b21a8; margin: 10px 0;">
+                    {{ "%.1f"|format(data.proj_30.weight) }} <small style="font-size: 16px; font-weight: 400;">kg</small>
+                </div>
+                <div style="font-size: 14px; font-weight: 600; color: {% if data.proj_30.change < 0 %}#10b981{% elif data.proj_30.change > 0 %}#f59e0b{% else %}#64748b{% endif %};">
+                    {{ "%+.2f"|format(data.proj_30.change) }} kg from now
+                </div>
+                <small style="color: #94a3b8; display: block; margin-top: 6px;">{{ data.proj_30.date }}</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visual Trajectory Curve Chart -->
+    <div class="card" style="margin-bottom: 30px;">
+        <h2>📈 30-Day Weight Trajectory Forecast</h2>
+        <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">
+            Simulated path based on your current caloric balance:
+        </p>
+
+        <!-- SVG Trajectory Visualization -->
+        <div style="overflow-x: auto;">
+            <svg viewBox="0 0 700 220" style="width: 100%; max-width: 700px; height: auto; display: block; margin: 0 auto; background: #f8fafc; border-radius: 10px; padding: 15px;">
+                <!-- Axis lines -->
+                <line x1="50" y1="20" x2="50" y2="180" stroke="#cbd5e1" stroke-width="1"/>
+                <line x1="50" y1="180" x2="680" y2="180" stroke="#cbd5e1" stroke-width="1"/>
+
+                <!-- Labels -->
+                <text x="50" y="198" fill="#64748b" font-size="12" text-anchor="middle">Today</text>
+                <text x="210" y="198" fill="#64748b" font-size="12" text-anchor="middle">Day 7</text>
+                <text x="370" y="198" fill="#64748b" font-size="12" text-anchor="middle">Day 14</text>
+                <text x="530" y="198" fill="#64748b" font-size="12" text-anchor="middle">Day 21</text>
+                <text x="660" y="198" fill="#64748b" font-size="12" text-anchor="middle">Day 30</text>
+
+                <!-- Current Weight baseline indicator -->
+                <text x="45" y="100" fill="#7c3aed" font-size="11" text-anchor="end">{{ "%.1f"|format(data.current_weight) }} kg</text>
+
+                <!-- Dynamic trajectory path calculation -->
+                {% set min_w = ([data.current_weight, data.proj_30.weight]|min) - 1.0 %}
+                {% set max_w = ([data.current_weight, data.proj_30.weight]|max) + 1.0 %}
+                {% set range_w = max_w - min_w if (max_w - min_w) > 0.1 else 1.0 %}
+
+                <!-- Points -->
+                {% set y0 = 170 - ((data.current_weight - min_w) / range_w * 130) %}
+                {% set y7 = 170 - ((data.proj_7.weight - min_w) / range_w * 130) %}
+                {% set y14 = 170 - ((data.proj_14.weight - min_w) / range_w * 130) %}
+                {% set y30 = 170 - ((data.proj_30.weight - min_w) / range_w * 130) %}
+
+                <!-- Path line -->
+                <path d="M 50 {{ y0 }} Q 210 {{ y7 }}, 370 {{ y14 }} T 660 {{ y30 }}"
+                      fill="none"
+                      stroke="#7c3aed"
+                      stroke-width="3"
+                      stroke-linecap="round"/>
+
+                <!-- Shaded Area -->
+                <path d="M 50 {{ y0 }} Q 210 {{ y7 }}, 370 {{ y14 }} T 660 {{ y30 }} L 660 180 L 50 180 Z"
+                      fill="#7c3aed"
+                      opacity="0.08"/>
+
+                <!-- Milestone dots -->
+                <circle cx="50" cy="{{ y0 }}" r="5" fill="#7c3aed"/>
+                <text x="50" y="{{ y0 - 10 }}" fill="#7c3aed" font-size="11" font-weight="700" text-anchor="middle">{{ "%.1f"|format(data.current_weight) }}</text>
+
+                <circle cx="210" cy="{{ y7 }}" r="5" fill="#7c3aed"/>
+                <text x="210" y="{{ y7 - 10 }}" fill="#7c3aed" font-size="11" font-weight="700" text-anchor="middle">{{ "%.1f"|format(data.proj_7.weight) }}</text>
+
+                <circle cx="370" cy="{{ y14 }}" r="5" fill="#7c3aed"/>
+                <text x="370" y="{{ y14 - 10 }}" fill="#7c3aed" font-size="11" font-weight="700" text-anchor="middle">{{ "%.1f"|format(data.proj_14.weight) }}</text>
+
+                <circle cx="660" cy="{{ y30 }}" r="6" fill="#6b21a8"/>
+                <text x="660" y="{{ y30 - 10 }}" fill="#6b21a8" font-size="12" font-weight="700" text-anchor="middle">{{ "%.1f"|format(data.proj_30.weight) }} kg</text>
+            </svg>
+        </div>
+    </div>
+
+    <!-- Personalized AI Health Insights -->
+    {% if data.insights %}
+    <div class="card" style="margin-bottom: 30px;">
+        <h2>💡 Personalized AI Insights</h2>
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
+            {% for insight in data.insights %}
+            <div style="padding: 14px 18px; border-radius: 10px; border-left: 4px solid {% if insight.type == 'success' %}#10b981{% elif insight.type == 'warning' %}#f59e0b{% else %}#3b82f6{% endif %}; background: #f8fafc;">
+                <strong style="color: #1e293b; font-size: 15px; display: block; margin-bottom: 4px;">
+                    {{ insight.title }}
+                </strong>
+                <p style="margin: 0; color: #475569; font-size: 14px; line-height: 1.5;">
+                    {{ insight.text }}
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Collapsible Day-by-Day Forecast Table -->
+    <div class="card">
+        <details>
+            <summary style="font-size: 17px; font-weight: 600; cursor: pointer; color: #1e293b; outline: none;">
+                📋 View Full 30-Day Day-by-Day Projection Table
+            </summary>
+            <div style="margin-top: 15px; max-height: 350px; overflow-y: auto;">
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Day</th>
+                            <th>Date</th>
+                            <th>Projected Weight</th>
+                            <th>Cumulative Change</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pt in data.trajectory %}
+                        <tr>
+                            <td>Day {{ pt.day }}</td>
+                            <td>{{ pt.date }}</td>
+                            <td><strong>{{ "%.2f"|format(pt.weight) }} kg</strong></td>
+                            <td style="color: {% if pt.change < 0 %}#10b981{% elif pt.change > 0 %}#f59e0b{% else %}#64748b{% endif %}; font-weight: 600;">
+                                {{ "%+.2f"|format(pt.change) }} kg
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </details>
+    </div>
+
+{% endif %}
+
+{% endblock %}

@@ -204,6 +204,14 @@ Food Diary
 
             </span>
 
+            {% if entry.id %}
+            <form action="{{ url_for('delete_food', record_id=entry.id) }}" method="POST" style="margin-top:6px;" onsubmit="return confirm('Remove this food entry?');">
+                <button type="submit" style="background:none; border:none; color:#dc2626; font-size:12px; cursor:pointer; padding:0;">
+                    ✕ Remove
+                </button>
+            </form>
+            {% endif %}
+
         </div>
 
     </div>

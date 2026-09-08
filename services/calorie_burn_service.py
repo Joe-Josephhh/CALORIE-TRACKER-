@@ -162,9 +162,12 @@ def get_activity_by_code(code):
     if code is None:
         return None
 
+    code_str = str(code).strip()
+    unpadded = code_str.lstrip("0") if code_str.lstrip("0") else "0"
+
     filtered = met_data[
-        met_data["Code"].astype(str).str.strip()
-        == str(code).strip()
+        (met_data["Code"].astype(str).str.strip() == code_str) |
+        (met_data["Code"].astype(str).str.strip() == unpadded)
     ]
 
     if filtered.empty:
