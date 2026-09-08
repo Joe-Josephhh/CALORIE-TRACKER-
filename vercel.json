@@ -7,7 +7,7 @@
     },
     {
       "source": "/(.*)",
-      "destination": "https://YOUR_BACKEND_URL/$1"
+      "destination": "https://calorie-tracker-1-tq2v.onrender.com/$1"
     }
   ]
 }
