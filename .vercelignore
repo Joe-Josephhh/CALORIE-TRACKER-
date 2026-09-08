@@ -1,0 +1,13 @@
+# Ignore Python backend files during Vercel edge deployment
+.python-version
+runtime.txt
+requirements.txt
+*.py
+services/
+data/
+configs/
+outputs/
+calorie_tracker.db
+uploads/
+Procfile
+render.yaml
