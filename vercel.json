@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/static/(.*)",
+      "destination": "/static/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "https://calorie-tracker-1-tq2v.onrender.com/$1"
+    }
+  ]
+}

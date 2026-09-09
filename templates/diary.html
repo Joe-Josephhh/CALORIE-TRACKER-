@@ -19,6 +19,30 @@ Food Diary
 
 </div>
 
+{% if coach and coach.has_profile %}
+<div class="card" style="margin-bottom: 20px; border-left: 5px solid {% if coach.is_over_budget %}#ef4444{% else %}#10b981{% endif %}; background: #ffffff; padding: 14px 18px; border-radius: 10px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 22px;">{% if coach.is_over_budget %}⚠️{% else %}🎯{% endif %}</span>
+        <div>
+            <strong style="color: #1e293b; font-size: 14px;">
+                {{ coach.goal }} Goal &bull; Daily Target: {{ "%.0f"|format(coach.daily_target) }} kcal
+            </strong>
+            <p style="margin: 2px 0 0; font-size: 13px; color: {% if coach.is_over_budget %}#dc2626{% else %}#059669{% endif %}; font-weight: 600;">
+                {% if coach.is_over_budget %}
+                    Over budget by {{ "%.0f"|format(coach.excess_calories) }} kcal! Check Dashboard for activity burn-off suggestions.
+                {% else %}
+                    {{ "%.0f"|format(coach.remaining) }} kcal remaining today.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <a href="{{ url_for('dashboard') }}" style="font-size: 13px; color: #2563eb; text-decoration: underline; font-weight: 600; align-self: center;">
+            View Dashboard Coach &rarr;
+        </a>
+    </div>
+</div>
+{% endif %}
 
 {% if success_message %}
 
@@ -203,6 +227,14 @@ Food Diary
                 ) }}g
 
             </span>
+
+            {% if entry.id %}
+            <form action="{{ url_for('delete_food', record_id=entry.id) }}" method="POST" style="margin-top:6px;" onsubmit="return confirm('Remove this food entry?');">
+                <button type="submit" style="background:none; border:none; color:#dc2626; font-size:12px; cursor:pointer; padding:0;">
+                    ✕ Remove
+                </button>
+            </form>
+            {% endif %}
 
         </div>
 

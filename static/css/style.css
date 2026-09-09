@@ -521,7 +521,7 @@ footer {
     display: grid;
 
     grid-template-columns:
-        repeat(3, 1fr);
+        repeat(auto-fit, minmax(220px, 1fr));
 
     gap: 20px;
 
@@ -679,3 +679,255 @@ footer {
     }
 
 }
+
+
+/* =========================================================
+   AUTH & USER STYLES
+   ========================================================= */
+
+.auth-container {
+    max-width: 680px;
+    margin: 20px auto 40px;
+}
+
+.auth-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 35px 40px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.auth-card-narrow {
+    max-width: 460px;
+    margin: 0 auto;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.auth-icon {
+    font-size: 40px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.auth-header h1 {
+    font-size: 26px;
+    margin: 0 0 8px;
+    color: #1a202c;
+}
+
+.auth-header p {
+    color: #718096;
+    font-size: 14px;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-section-title {
+    margin-top: 10px;
+    padding-top: 15px;
+    border-top: 1px solid #edf2f7;
+}
+
+.form-section-title h3 {
+    margin: 0 0 4px;
+    font-size: 16px;
+    color: #2d3748;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.required {
+    color: #e53e3e;
+}
+
+.auth-form input[type="text"],
+.auth-form input[type="email"],
+.auth-form input[type="password"],
+.auth-form input[type="number"],
+.auth-form select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #f8fafc;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-form input:focus,
+.auth-form select:focus {
+    outline: none;
+    border-color: #3182ce;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+    background: #ffffff;
+}
+
+.auth-submit-btn {
+    width: 100%;
+    margin-top: 15px;
+    padding: 13px;
+    font-size: 15px;
+    font-weight: 600;
+    background: #2563eb;
+    color: #ffffff;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.auth-submit-btn:hover {
+    background: #1d4ed8;
+}
+
+.auth-footer {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 14px;
+    color: #718096;
+}
+
+.auth-footer a {
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+/* User status in navbar */
+.nav-user-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f1f5f9;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 13px;
+    color: #334155;
+}
+
+.nav-link-btn {
+    background: #2563eb;
+    color: #ffffff !important;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.nav-link-btn:hover {
+    background: #1d4ed8;
+}
+
+.nav-link-logout {
+    color: #dc2626 !important;
+    font-weight: 500;
+}
+
+@media (max-width: 600px) {
+    .auth-card {
+        padding: 24px 20px;
+    }
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================
+   PROFILE & WEIGHT TRACKING STYLES
+   ========================================================= */
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    align-items: start;
+}
+
+@media (max-width: 860px) {
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.disabled-input {
+    background-color: #f1f5f9 !important;
+    color: #64748b !important;
+    cursor: not-allowed;
+}
+
+.weight-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+    .weight-summary-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.styled-table th,
+.styled-table td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 14px;
+}
+
+.styled-table th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #475569;
+}
+
+.styled-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.weight-history-table-container {
+    max-height: 260px;
+    overflow-y: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+

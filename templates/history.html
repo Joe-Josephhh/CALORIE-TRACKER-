@@ -1,228 +1,206 @@
 {% extends "base.html" %}
 
 {% block title %}
-Diary History
+History &amp; Trends | Calorie Tracker
 {% endblock %}
-
 
 {% block content %}
 
-<div class="page-header">
-
-    <h1>
-        Diary History
-    </h1>
-
-    <p>
-        View your food diary between two dates.
+<div class="page-header" style="text-align: center; margin-bottom: 25px;">
+    <h1>📅 Daily History &amp; Trends</h1>
+    <p style="color: #64748b;">
+        Review your daily Calories IN, Calories OUT, Net Calories, and Weight over time.
     </p>
-
 </div>
 
+<!-- Date Filter Form -->
+<div class="card" style="margin-bottom: 25px;">
+    <form method="GET" action="{{ url_for('history') }}" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; justify-content: space-between;">
+        <div style="flex: 1; min-width: 180px;">
+            <label for="start_date" style="font-weight: 600; display: block; margin-bottom: 6px;">Start Date</label>
+            <input
+                type="date"
+                id="start_date"
+                name="start_date"
+                value="{{ start_date }}"
+                style="width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 8px;"
+                required
+            >
+        </div>
 
-<div class="card">
+        <div style="flex: 1; min-width: 180px;">
+            <label for="end_date" style="font-weight: 600; display: block; margin-bottom: 6px;">End Date</label>
+            <input
+                type="date"
+                id="end_date"
+                name="end_date"
+                value="{{ end_date }}"
+                style="width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 8px;"
+                required
+            >
+        </div>
 
-    <form
-        method="POST"
-        action="{{ url_for('history') }}"
-    >
-
-        <label>
-            Start Date
-        </label>
-
-        <input
-            type="date"
-            name="start_date"
-            value="{{ start_date or '' }}"
-            required
-        >
-
-
-        <label>
-            End Date
-        </label>
-
-        <input
-            type="date"
-            name="end_date"
-            value="{{ end_date or '' }}"
-            required
-        >
-
-
-        <button
-            type="submit"
-            class="button"
-        >
-            View History
-        </button>
-
+        <div style="display: flex; gap: 8px;">
+            <button type="submit" class="button" style="margin: 0; padding: 10px 20px;">
+                Filter Range
+            </button>
+        </div>
     </form>
-
 </div>
 
+<!-- Range Summary Cards -->
+<div class="summary-grid" style="margin-bottom: 30px;">
+    <!-- Total In -->
+    <div class="summary-card" style="border-top: 4px solid #2563eb;">
+        <span style="color: #64748b; font-size: 14px;">Total Calories In</span>
+        <strong style="color: #2563eb; font-size: 28px; margin: 8px 0;">
+            {{ "%.1f"|format(total_in) }}
+        </strong>
+        <small>kcal consumed</small>
+    </div>
 
+    <!-- Total Out -->
+    <div class="summary-card" style="border-top: 4px solid #ea580c;">
+        <span style="color: #64748b; font-size: 14px;">Total Calories Out</span>
+        <strong style="color: #ea580c; font-size: 28px; margin: 8px 0;">
+            {{ "%.1f"|format(total_burned) }}
+        </strong>
+        <small>kcal burned</small>
+    </div>
+
+    <!-- Total Net -->
+    <div class="summary-card" style="border-top: 4px solid {% if total_net > 0 %}#f59e0b{% elif total_net < 0 %}#10b981{% else %}#64748b{% endif %};">
+        <span style="color: #64748b; font-size: 14px;">Range Net Balance</span>
+        <strong style="color: {% if total_net > 0 %}#b45309{% elif total_net < 0 %}#047857{% else %}#334155{% endif %}; font-size: 28px; margin: 8px 0;">
+            {{ "%+.1f"|format(total_net) }}
+        </strong>
+        <small>
+            {% if total_net > 0 %}
+                Calorie Surplus
+            {% elif total_net < 0 %}
+                Calorie Deficit
+            {% else %}
+                Balanced
+            {% endif %}
+        </small>
+    </div>
+
+    <!-- Days Logged -->
+    <div class="summary-card" style="border-top: 4px solid #8b5cf6;">
+        <span style="color: #64748b; font-size: 14px;">Active Days</span>
+        <strong style="color: #8b5cf6; font-size: 28px; margin: 8px 0;">
+            {{ daily_history|length }}
+        </strong>
+        <small>days with logged records</small>
+    </div>
+</div>
+
+<!-- Daily Summary Table -->
+<div class="card" style="margin-bottom: 30px;">
+    <h2>Daily Breakdown ({{ start_date }} to {{ end_date }})</h2>
+
+    {% if daily_history %}
+        <div style="overflow-x: auto;">
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>🍛 Calories In</th>
+                        <th>🔥 Calories Out</th>
+                        <th>⚖️ Net Calories</th>
+                        <th>⚖️ Body Weight</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in daily_history %}
+                    <tr>
+                        <td><strong>{{ row.date }}</strong></td>
+                        <td style="color: #2563eb; font-weight: 600;">
+                            {{ "%.1f"|format(row.calories_in) }} kcal
+                        </td>
+                        <td style="color: #ea580c; font-weight: 600;">
+                            {{ "%.1f"|format(row.calories_out) }} kcal
+                        </td>
+                        <td>
+                            {% if row.net_calories > 0 %}
+                                <span style="background: #fef3c7; color: #92400e; padding: 3px 8px; border-radius: 6px; font-weight: 600; font-size: 13px;">
+                                    +{{ "%.1f"|format(row.net_calories) }} (Surplus)
+                                </span>
+                            {% elif row.net_calories < 0 %}
+                                <span style="background: #d1fae5; color: #065f46; padding: 3px 8px; border-radius: 6px; font-weight: 600; font-size: 13px;">
+                                    {{ "%.1f"|format(row.net_calories) }} (Deficit)
+                                </span>
+                            {% else %}
+                                <span style="background: #f1f5f9; color: #475569; padding: 3px 8px; border-radius: 6px; font-weight: 600; font-size: 13px;">
+                                    0.0 (Balanced)
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if row.weight_kg is not none %}
+                                <strong style="color: #7c3aed;">{{ "%.1f"|format(row.weight_kg) }} kg</strong>
+                            {% else %}
+                                <span style="color: #94a3b8;">--</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('diary_date', date=row.date) }}" style="color: #2563eb; font-size: 13px; text-decoration: underline;">
+                                View Diary &rarr;
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="empty-message" style="padding: 30px 20px;">
+            No food or exercise entries found between {{ start_date }} and {{ end_date }}.
+        </p>
+    {% endif %}
+</div>
+
+<!-- Detailed Meals by Date -->
 {% if grouped %}
-
 <div class="card">
+    <h2>Detailed Meals Breakdown</h2>
 
-    <h2>
-        Summary
-    </h2>
-
-    <div class="summary-grid">
-
-        <div class="summary-card">
-
-            <span>
-                Meals
-            </span>
-
-            <strong>
-                {{ entries|length }}
-            </strong>
-
-        </div>
-
-
-        <div class="summary-card">
-
-            <span>
-                Calories
-            </span>
-
-            <strong>
-                {{ "%.1f"|format(
-                    totals["Calories (kcal)"]
-                ) }}
-            </strong>
-
-            <small>
-                kcal
-            </small>
-
-        </div>
-
-
-        <div class="summary-card">
-
-            <span>
-                Protein
-            </span>
-
-            <strong>
-                {{ "%.1f"|format(
-                    totals["Protein (g)"]
-                ) }}
-            </strong>
-
-            <small>
-                g
-            </small>
-
-        </div>
-
-
-        <div class="summary-card">
-
-            <span>
-                Fats
-            </span>
-
-            <strong>
-                {{ "%.1f"|format(
-                    totals["Fats (g)"]
-                ) }}
-            </strong>
-
-            <small>
-                g
-            </small>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-{% for date, date_entries in grouped.items() %}
-
-<div class="card">
-
-    <h2>
-        {{ date }}
-    </h2>
-
-
-    {% for entry in date_entries %}
-
-    <div class="diary-entry">
-
-        <div>
-
-            <h3>
-                {{ entry.dish_name }}
+    {% for date_key, date_entries in grouped.items() %}
+    <div style="margin-bottom: 22px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h3 style="margin: 0; font-size: 17px; color: #1e293b;">
+                📅 {{ date_key }}
             </h3>
-
-            <p>
-
-                {{ entry.time }}
-
-                |
-
-                {{ entry.meal_type|capitalize }}
-
-                |
-
-                {{ entry.weight }} g
-
-            </p>
-
+            <a href="{{ url_for('diary_date', date=date_key) }}" style="font-size: 12px; color: #2563eb; text-decoration: underline;">
+                Open Full Day Diary
+            </a>
         </div>
 
-
-        <div>
-
-            <strong>
-
-                {{ "%.1f"|format(
-                    entry.nutrition[
-                        "Calories (kcal)"
-                    ]
-                ) }}
-
-                kcal
-
-            </strong>
-
+        {% for entry in date_entries %}
+        <div class="diary-entry" style="padding: 10px 0;">
+            <div>
+                <strong style="color: #1e293b; font-size: 14px;">{{ entry.dish_name }}</strong>
+                <p style="margin: 2px 0 0; color: #64748b; font-size: 13px;">
+                    {{ entry.meal_type|capitalize }} &bull; {{ entry.weight }} g
+                    {% if entry.notes %} &bull; <em>{{ entry.notes }}</em>{% endif %}
+                </p>
+            </div>
+            <div style="text-align: right;">
+                <strong style="color: #2563eb; font-size: 14px;">
+                    {{ "%.1f"|format(entry.nutrition["Calories (kcal)"]) }} kcal
+                </strong>
+                <small style="display: block; color: #64748b; font-size: 12px;">
+                    P: {{ "%.1f"|format(entry.nutrition["Protein (g)"]) }}g &bull;
+                    C: {{ "%.1f"|format(entry.nutrition["Carbohydrates (g)"]) }}g &bull;
+                    F: {{ "%.1f"|format(entry.nutrition["Fats (g)"]) }}g
+                </small>
+            </div>
         </div>
-
+        {% endfor %}
     </div>
-
     {% endfor %}
-
 </div>
-
-{% endfor %}
-
-
-{% elif entries is not none %}
-
-<div class="card empty-state">
-
-    <h2>
-        No entries found
-    </h2>
-
-    <p>
-        There are no food entries between
-        the selected dates.
-    </p>
-
-</div>
-
 {% endif %}
 
 {% endblock %}

@@ -1,518 +1,313 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% block title %}
+Calorie Out | Calorie Tracker
+{% endblock %}
 
-    <title>Calorie Out | Calorie Tracker</title>
+{% block content %}
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/style.css') }}"
-    >
-</head>
+<div class="page-header">
+    <a href="{{ url_for('home') }}" class="back-link">
+        ← Back to Calorie Intake
+    </a>
+    <h1>🔥 Calorie Out</h1>
+    <p>
+        Calculate calories burned from your physical activity and log them to your day.
+    </p>
+</div>
 
-<body>
+<!-- Calculator Card -->
+<div class="calorie-out-card">
+    <h2>Exercise Details</h2>
 
-    <div class="container">
-
-        <!-- Header -->
-
-        <div class="page-header">
-
-            <a href="/" class="back-link">
-                ← Back to Calorie Intake
-            </a>
-
-            <h1>🔥 Calorie Out</h1>
-
-            <p>
-                Calculate calories burned from your physical activity.
-            </p>
-
+    <form id="calorieOutForm">
+        <!-- Activity Category -->
+        <div class="form-group">
+            <label for="category">Activity Category</label>
+            <select id="category" required>
+                <option value="">-- Select Category --</option>
+                {% for category in categories %}
+                <option value="{{ category }}">{{ category }}</option>
+                {% endfor %}
+            </select>
         </div>
 
+        <!-- Activity -->
+        <div class="form-group">
+            <label for="activity">Activity</label>
+            <select id="activity" required disabled>
+                <option value="">-- Select an activity --</option>
+            </select>
+        </div>
 
-        <!-- Main Card -->
-
-        <div class="calorie-out-card">
-
-            <h2>Exercise Details</h2>
-
-            <form id="calorieOutForm">
-
-
-                <!-- Activity Category -->
-
-                <div class="form-group">
-
-                    <label for="category">
-                        Activity Category
-                    </label>
-
-                    <select id="category" required>
-
-                        <option value="">
-                            -- Select Category --
-                        </option>
-
-                        {% for category in categories %}
-
-                        <option value="{{ category }}">
-                            {{ category }}
-                        </option>
-
-                        {% endfor %}
-
-                    </select>
-
-                </div>
-
-
-                <!-- Activity -->
-
-                <div class="form-group">
-
-                    <label for="activity">
-                        Activity
-                    </label>
-
-                    <select id="activity" required disabled>
-
-                        <option value="">
-                            -- Select an activity --
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- Weight -->
-
-                <div class="form-group">
-
-                    <label for="weight">
-                        Body Weight (kg)
-                    </label>
-
-                    <input
-                        type="number"
-                        id="weight"
-                        min="1"
-                        max="500"
-                        step="0.1"
-                        placeholder="Example: 65"
-                        required
-                    >
-
-                </div>
-
-
-                <!-- Duration -->
-
-                <div class="form-group">
-
-                    <label for="duration">
-                        Duration (minutes)
-                    </label>
-
-                    <input
-                        type="number"
-                        id="duration"
-                        min="1"
-                        max="1440"
-                        step="1"
-                        placeholder="Example: 30"
-                        required
-                    >
-
-                </div>
-
-
-                <!-- Calculate -->
-
-                <button
-                    type="submit"
-                    class="calculate-btn"
-                    id="calculateBtn"
-                >
-                    Calculate Calories Burned
-                </button>
-
-            </form>
-
-
-            <!-- Error -->
-
-            <div
-                id="errorMessage"
-                class="error-message"
-                style="display: none;"
-            ></div>
-
-
-            <!-- Result -->
-
-            <div
-                id="result"
-                class="calorie-result"
-                style="display: none;"
+        <!-- Weight -->
+        <div class="form-group">
+            <label for="weight">Body Weight (kg)</label>
+            <input
+                type="number"
+                id="weight"
+                min="1"
+                max="500"
+                step="0.1"
+                placeholder="Example: 65"
+                value="{{ user_weight if user_weight else '' }}"
+                required
             >
-
-                <h2>Calories Burned</h2>
-
-                <div class="calories-number">
-                    <span id="caloriesBurned">0</span>
-                    <small>kcal</small>
-                </div>
-
-
-                <div class="result-details">
-
-                    <p>
-                        <strong>Activity:</strong>
-                        <span id="resultActivity"></span>
-                    </p>
-
-                    <p>
-                        <strong>MET:</strong>
-                        <span id="resultMet"></span>
-                    </p>
-
-                    <p>
-                        <strong>Weight:</strong>
-                        <span id="resultWeight"></span>
-                        kg
-                    </p>
-
-                    <p>
-                        <strong>Duration:</strong>
-                        <span id="resultDuration"></span>
-                        minutes
-                    </p>
-
-                </div>
-
-            </div>
-
+            {% if not user_weight %}
+            <small style="color: #666; display: block; margin-top: 4px;">
+                Tip: Update your weight in your <a href="{{ url_for('profile') }}">Profile</a> to auto-fill here.
+            </small>
+            {% endif %}
         </div>
 
+        <!-- Duration -->
+        <div class="form-group">
+            <label for="duration">Duration (minutes)</label>
+            <input
+                type="number"
+                id="duration"
+                min="1"
+                max="1440"
+                step="1"
+                placeholder="Example: 30"
+                required
+            >
+        </div>
+
+        <!-- Calculate Button -->
+        <button
+            type="submit"
+            class="calculate-btn"
+            id="calculateBtn"
+        >
+            Calculate &amp; Log Activity
+        </button>
+    </form>
+
+    <!-- Error -->
+    <div
+        id="errorMessage"
+        class="error-message"
+        style="display: none; background: #fee2e2; color: #b91c1c;"
+    ></div>
+
+    <!-- Result -->
+    <div
+        id="result"
+        class="calorie-result"
+        style="display: none; background: #f0fdf4; border: 1px solid #bbf7d0; margin-top: 20px;"
+    >
+        <h2 style="color: #15803d;">Activity Logged!</h2>
+        <div class="calories-number" style="color: #dc2626;">
+            <span id="caloriesBurned">0</span>
+            <small>kcal burned</small>
+        </div>
+
+        <div class="result-details">
+            <p><strong>Activity:</strong> <span id="resultActivity"></span></p>
+            <p><strong>MET:</strong> <span id="resultMet"></span></p>
+            <p><strong>Weight:</strong> <span id="resultWeight"></span> kg</p>
+            <p><strong>Duration:</strong> <span id="resultDuration"></span> minutes</p>
+        </div>
+
+        <div style="margin-top: 15px;">
+            <button
+                type="button"
+                onclick="window.location.reload();"
+                class="button"
+                style="padding: 8px 16px; font-size: 14px;"
+            >
+                ↻ Refresh List
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Today's Logged Activities Card -->
+<div class="calorie-out-card" style="margin-top: 30px;">
+    <h2>Today's Activities ({{ today }})</h2>
+
+    <div style="text-align: center; margin-bottom: 20px; font-size: 17px; background: #fef2f2; padding: 12px; border-radius: 8px; border: 1px solid #fecaca;">
+        Total Burned Today: <strong style="color: #dc2626; font-size: 20px;">{{ "%.1f"|format(today_burned) }} kcal</strong>
     </div>
 
+    {% if today_exercises %}
+        <div class="exercises-list">
+            {% for ex in today_exercises %}
+            <div class="diary-entry" style="align-items: center;">
+                <div>
+                    <h3 style="margin-bottom: 4px; font-size: 16px;">{{ ex.activity }}</h3>
+                    <p style="margin: 0; color: #666; font-size: 13px;">
+                        {{ ex.duration_minutes }} mins &bull; MET {{ ex.met }} &bull; {{ ex.weight_kg }} kg
+                    </p>
+                </div>
+                <div style="text-align: right;">
+                    <strong style="font-size: 16px; color: #dc2626; display: block;">
+                        -{{ "%.1f"|format(ex.calories_burned) }} kcal
+                    </strong>
+                    <form action="{{ url_for('delete_exercise', record_id=ex.id) }}" method="POST" style="margin-top: 4px;" onsubmit="return confirm('Remove this exercise entry?');">
+                        <button type="submit" style="background: none; border: none; color: #dc2626; font-size: 12px; cursor: pointer; padding: 0; text-decoration: underline;">
+                            ✕ Remove
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="text-align: center; color: #888; margin: 20px 0;">
+            No physical activities logged for today yet. Use the calculator above to log your exercise!
+        </p>
+    {% endif %}
+</div>
 
 <script>
-
     // -----------------------------------------------------
     // Elements
     // -----------------------------------------------------
-
-    const categorySelect =
-        document.getElementById("category");
-
-    const activitySelect =
-        document.getElementById("activity");
-
-    const form =
-        document.getElementById("calorieOutForm");
-
-    const result =
-        document.getElementById("result");
-
-    const errorMessage =
-        document.getElementById("errorMessage");
-
-    const calculateBtn =
-        document.getElementById("calculateBtn");
-
+    const categorySelect = document.getElementById("category");
+    const activitySelect = document.getElementById("activity");
+    const form = document.getElementById("calorieOutForm");
+    const result = document.getElementById("result");
+    const errorMessage = document.getElementById("errorMessage");
+    const calculateBtn = document.getElementById("calculateBtn");
 
     // -----------------------------------------------------
     // Category changed
     // -----------------------------------------------------
-
     categorySelect.addEventListener("change", async function () {
-
         const category = this.value;
-
-        activitySelect.innerHTML =
-            '<option value="">Loading activities...</option>';
-
+        activitySelect.innerHTML = '<option value="">Loading activities...</option>';
         activitySelect.disabled = true;
 
         hideResult();
         hideError();
 
-
         if (!category) {
-
-            activitySelect.innerHTML =
-                '<option value="">-- Select an activity --</option>';
-
+            activitySelect.innerHTML = '<option value="">-- Select an activity --</option>';
             return;
         }
 
-
         try {
-
-            const response = await fetch(
-                `/api/activities/${encodeURIComponent(category)}`
-            );
-
+            const response = await fetch(`/api/activities/${encodeURIComponent(category)}`);
             const data = await response.json();
 
-
             if (!data.success) {
-
-                showError(
-                    "Unable to load activities."
-                );
-
+                showError("Unable to load activities.");
                 return;
             }
 
-
-            activitySelect.innerHTML =
-                '<option value="">-- Select an activity --</option>';
-
+            activitySelect.innerHTML = '<option value="">-- Select an activity --</option>';
 
             data.activities.forEach(function (activity) {
-
-                const option =
-                    document.createElement("option");
-
+                const option = document.createElement("option");
                 option.value = activity.code;
-
-                option.textContent =
-                    `${activity.description} (MET: ${activity.met})`;
-
+                option.textContent = `${activity.description} (MET: ${activity.met})`;
                 activitySelect.appendChild(option);
-
             });
 
-
-            activitySelect.disabled =
-                data.activities.length === 0;
-
+            activitySelect.disabled = data.activities.length === 0;
 
             if (data.activities.length === 0) {
-
-                activitySelect.innerHTML =
-                    '<option value="">No activities found</option>';
-
+                activitySelect.innerHTML = '<option value="">No activities found</option>';
             }
-
-        }
-
-        catch (error) {
-
+        } catch (error) {
             console.error(error);
-
-            showError(
-                "Could not connect to the server."
-            );
-
-            activitySelect.innerHTML =
-                '<option value="">Unable to load activities</option>';
+            showError("Could not connect to the server.");
+            activitySelect.innerHTML = '<option value="">Unable to load activities</option>';
         }
-
     });
 
-
     // -----------------------------------------------------
-    // Calculate calories
+    // Calculate & Log calories
     // -----------------------------------------------------
-
     form.addEventListener("submit", async function (event) {
-
         event.preventDefault();
-
         hideError();
         hideResult();
 
-
-        const activityCode =
-            activitySelect.value;
-
-        const weight =
-            document.getElementById("weight").value;
-
-        const duration =
-            document.getElementById("duration").value;
-
+        const activityCode = activitySelect.value;
+        const weight = document.getElementById("weight").value;
+        const duration = document.getElementById("duration").value;
 
         if (!activityCode) {
-
-            showError(
-                "Please select an activity."
-            );
-
+            showError("Please select an activity.");
             return;
         }
-
 
         if (!weight || Number(weight) <= 0) {
-
-            showError(
-                "Please enter a valid body weight."
-            );
-
+            showError("Please enter a valid body weight.");
             return;
         }
-
 
         if (!duration || Number(duration) <= 0) {
-
-            showError(
-                "Please enter a valid duration."
-            );
-
+            showError("Please enter a valid duration.");
             return;
         }
 
-
         calculateBtn.disabled = true;
-
-        calculateBtn.textContent =
-            "Calculating...";
-
+        calculateBtn.textContent = "Calculating & Logging...";
 
         try {
+            const response = await fetch("/api/calculate-calories", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    activity_code: activityCode,
+                    weight_kg: Number(weight),
+                    duration_minutes: Number(duration)
+                })
+            });
 
-            const response = await fetch(
-                "/api/calculate-calories",
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-
-                        activity_code:
-                            activityCode,
-
-                        weight_kg:
-                            Number(weight),
-
-                        duration_minutes:
-                            Number(duration)
-
-                    })
-                }
-            );
-
-
-            const data =
-                await response.json();
-
+            const data = await response.json();
 
             if (!data.success) {
-
-                showError(
-                    data.error ||
-                    "Calculation failed."
-                );
-
+                showError(data.error || "Calculation failed.");
                 return;
             }
 
-
-            const calculation =
-                data.result;
-
+            const calculation = data.result;
 
             // Display result
+            document.getElementById("caloriesBurned").textContent = calculation.calories_burned;
+            document.getElementById("resultActivity").textContent = calculation.description;
+            document.getElementById("resultMet").textContent = calculation.met;
+            document.getElementById("resultWeight").textContent = calculation.weight_kg;
+            document.getElementById("resultDuration").textContent = calculation.duration_minutes;
 
-            document.getElementById(
-                "caloriesBurned"
-            ).textContent =
-                calculation.calories_burned;
+            result.style.display = "block";
 
+            // Reload page after a brief delay so the today's list updates automatically
+            setTimeout(function() {
+                window.location.reload();
+            }, 1800);
 
-            document.getElementById(
-                "resultActivity"
-            ).textContent =
-                calculation.description;
-
-
-            document.getElementById(
-                "resultMet"
-            ).textContent =
-                calculation.met;
-
-
-            document.getElementById(
-                "resultWeight"
-            ).textContent =
-                calculation.weight_kg;
-
-
-            document.getElementById(
-                "resultDuration"
-            ).textContent =
-                calculation.duration_minutes;
-
-
-            result.style.display =
-                "block";
-
-        }
-
-        catch (error) {
-
+        } catch (error) {
             console.error(error);
-
-            showError(
-                "Could not connect to the server."
-            );
-
+            showError("Could not connect to the server.");
+        } finally {
+            calculateBtn.disabled = false;
+            calculateBtn.textContent = "Calculate & Log Activity";
         }
-
-        finally {
-
-            calculateBtn.disabled =
-                false;
-
-            calculateBtn.textContent =
-                "Calculate Calories Burned";
-
-        }
-
     });
-
 
     // -----------------------------------------------------
     // Helper functions
     // -----------------------------------------------------
-
     function showError(message) {
-
-        errorMessage.textContent =
-            message;
-
-        errorMessage.style.display =
-            "block";
+        errorMessage.textContent = message;
+        errorMessage.style.display = "block";
     }
-
 
     function hideError() {
-
-        errorMessage.style.display =
-            "none";
+        errorMessage.style.display = "none";
     }
-
 
     function hideResult() {
-
-        result.style.display =
-            "none";
+        result.style.display = "none";
     }
-
 </script>
 
-</body>
-
-</html>
+{% endblock %}

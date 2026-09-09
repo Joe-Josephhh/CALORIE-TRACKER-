@@ -4,9 +4,15 @@ __pycache__/
 *.pyc
 .ipynb_checkpoints/
 
-# TensorFlow / ML generated files
-outputs/
-checkpoints/
+# Vercel cache
+.vercel/
+
+# Root checkpoints folder (if any)
+/checkpoints/
+
+# Uploaded test photos (ignore runtime uploads)
+uploads/*
+!uploads/.gitkeep
 
 # Datasets
 DataSet/
