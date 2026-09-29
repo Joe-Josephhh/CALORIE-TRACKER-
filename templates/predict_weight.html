@@ -5,6 +5,8 @@ AI Weight Prediction | Calorie Tracker
 {% endblock %}
 
 {% block content %}
+<!-- Include Chart.js for smooth multi-point trajectory graphing -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- Header -->
 <div class="page-header" style="text-align: center; margin-bottom: 25px;">
@@ -27,31 +29,51 @@ AI Weight Prediction | Calorie Tracker
     </div>
 {% else %}
 
-    <!-- Model Status Engine Banner -->
-    <div class="card" style="margin-bottom: 25px; border-left: 5px solid {% if data.lstm_unlocked %}#10b981{% else %}#3b82f6{% endif %};">
+    <!-- Model Status & Freshness Banner -->
+    <div class="card" style="margin-bottom: 25px; border-left: 5px solid {% if data.lstm_unlocked %}#10b981{% elif data.is_stale and data.days_logged >= 14 %}#f59e0b{% else %}#3b82f6{% endif %};">
         <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px;">
             <div>
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 8px;">
                     <span style="font-weight: 700; font-size: 16px; color: #1e293b;">Prediction Engine:</span>
                     {% if data.lstm_unlocked %}
-                        <span style="background: #d1fae5; color: #065f46; font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 20px;">
-                            🔬 {{ data.model_name }}
+                        <span style="background: #d1fae5; color: #065f46; font-size: 13px; font-weight: 600; padding: 4px 12px; border-radius: 20px;">
+                            🔬 {{ data.model_name }} (Active)
+                        </span>
+                        <span style="background: #f1f5f9; color: #475569; font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 12px;">
+                            🟢 Continuous tracking active
+                        </span>
+                    {% elif data.is_stale and data.days_logged >= 14 %}
+                        <span style="background: #fef3c7; color: #92400e; font-size: 13px; font-weight: 600; padding: 4px 12px; border-radius: 20px;">
+                            ⚡ {{ data.model_name }} (LSTM Paused)
+                        </span>
+                        <span style="background: #fee2e2; color: #991b1b; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 12px;">
+                            ⚠️ {{ data.days_since_last_log }} days without input
                         </span>
                     {% else %}
-                        <span style="background: #e0f2fe; color: #0369a1; font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 20px;">
+                        <span style="background: #e0f2fe; color: #0369a1; font-size: 13px; font-weight: 600; padding: 4px 12px; border-radius: 20px;">
                             ⚡ {{ data.model_name }}
+                        </span>
+                        <span style="background: #f1f5f9; color: #475569; font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 12px;">
+                            📊 Logged {{ data.days_logged }}/14 days
                         </span>
                     {% endif %}
                 </div>
-                <p style="color: #64748b; margin: 0; font-size: 14px;">
-                    {% if data.lstm_unlocked %}
-                        Running on your personalized sliding-window time-series habit sequences.
+                <p style="color: #64748b; margin: 0; font-size: 14px; line-height: 1.5;">
+                    {% if data.status_reason %}
+                        {{ data.status_reason }}
+                    {% elif data.lstm_unlocked %}
+                        Running on your personalized sliding-window time-series habit sequences with weekly habit rhythm adaptation.
                     {% else %}
-                        Utilizing the Mifflin-St Jeor metabolic thermodynamic model (7,700 kcal &approx; 1 kg). Log {{ data.days_logged }}/14 days to unlock personalized LSTM Deep Learning neural fine-tuning.
+                        Utilizing Dynamic Metabolic Adaptation with daily BMR recalibration. Log continuously to unlock LSTM Deep Learning.
                     {% endif %}
                 </p>
             </div>
-            <div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                {% if not data.lstm_unlocked and data.days_since_last_log > 0 %}
+                    <a href="{{ url_for('log_food') }}" class="button" style="padding: 7px 14px; font-size: 13px; margin: 0;">
+                        + Log Food Today
+                    </a>
+                {% endif %}
                 <a href="{{ url_for('profile') }}" style="font-size: 13px; color: #2563eb; text-decoration: underline;">
                     Edit Profile Target &rarr;
                 </a>
@@ -148,66 +170,32 @@ AI Weight Prediction | Calorie Tracker
         </div>
     </div>
 
-    <!-- Visual Trajectory Curve Chart -->
+    <!-- Interactive 30-Day Multi-Point Trajectory Chart -->
     <div class="card" style="margin-bottom: 30px;">
-        <h2>📈 30-Day Weight Trajectory Forecast</h2>
-        <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">
-            Simulated path based on your current caloric balance:
-        </p>
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 15px;">
+            <div>
+                <h2 style="margin: 0; font-size: 20px;">📈 30-Day Trajectory Curve Comparison</h2>
+                <p style="color: #64748b; font-size: 14px; margin: 4px 0 0 0;">
+                    Real-time non-linear curves demonstrating habit dynamics and metabolic adaptation:
+                </p>
+            </div>
+            {% if data.lstm_unlocked %}
+            <div style="display: flex; gap: 8px;">
+                <span style="font-size: 12px; background: #faf5ff; color: #7c3aed; border: 1px solid #e9d5ff; padding: 4px 10px; border-radius: 6px; font-weight: 600;">
+                    🟣 LSTM Deep Learning
+                </span>
+                <span style="font-size: 12px; background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 10px; border-radius: 6px; font-weight: 600;">
+                    🔵 Metabolic Adaptation Baseline
+                </span>
+            </div>
+            {% endif %}
+        </div>
 
-        <!-- SVG Trajectory Visualization -->
-        <div style="overflow-x: auto;">
-            <svg viewBox="0 0 700 220" style="width: 100%; max-width: 700px; height: auto; display: block; margin: 0 auto; background: #f8fafc; border-radius: 10px; padding: 15px;">
-                <!-- Axis lines -->
-                <line x1="50" y1="20" x2="50" y2="180" stroke="#cbd5e1" stroke-width="1"/>
-                <line x1="50" y1="180" x2="680" y2="180" stroke="#cbd5e1" stroke-width="1"/>
-
-                <!-- Labels -->
-                <text x="50" y="198" fill="#64748b" font-size="12" text-anchor="middle">Today</text>
-                <text x="210" y="198" fill="#64748b" font-size="12" text-anchor="middle">Day 7</text>
-                <text x="370" y="198" fill="#64748b" font-size="12" text-anchor="middle">Day 14</text>
-                <text x="530" y="198" fill="#64748b" font-size="12" text-anchor="middle">Day 21</text>
-                <text x="660" y="198" fill="#64748b" font-size="12" text-anchor="middle">Day 30</text>
-
-                <!-- Current Weight baseline indicator -->
-                <text x="45" y="100" fill="#7c3aed" font-size="11" text-anchor="end">{{ "%.1f"|format(data.current_weight) }} kg</text>
-
-                <!-- Dynamic trajectory path calculation -->
-                {% set min_w = ([data.current_weight, data.proj_30.weight]|min) - 1.0 %}
-                {% set max_w = ([data.current_weight, data.proj_30.weight]|max) + 1.0 %}
-                {% set range_w = max_w - min_w if (max_w - min_w) > 0.1 else 1.0 %}
-
-                <!-- Points -->
-                {% set y0 = 170 - ((data.current_weight - min_w) / range_w * 130) %}
-                {% set y7 = 170 - ((data.proj_7.weight - min_w) / range_w * 130) %}
-                {% set y14 = 170 - ((data.proj_14.weight - min_w) / range_w * 130) %}
-                {% set y30 = 170 - ((data.proj_30.weight - min_w) / range_w * 130) %}
-
-                <!-- Path line -->
-                <path d="M 50 {{ y0 }} Q 210 {{ y7 }}, 370 {{ y14 }} T 660 {{ y30 }}"
-                      fill="none"
-                      stroke="#7c3aed"
-                      stroke-width="3"
-                      stroke-linecap="round"/>
-
-                <!-- Shaded Area -->
-                <path d="M 50 {{ y0 }} Q 210 {{ y7 }}, 370 {{ y14 }} T 660 {{ y30 }} L 660 180 L 50 180 Z"
-                      fill="#7c3aed"
-                      opacity="0.08"/>
-
-                <!-- Milestone dots -->
-                <circle cx="50" cy="{{ y0 }}" r="5" fill="#7c3aed"/>
-                <text x="50" y="{{ y0 - 10 }}" fill="#7c3aed" font-size="11" font-weight="700" text-anchor="middle">{{ "%.1f"|format(data.current_weight) }}</text>
-
-                <circle cx="210" cy="{{ y7 }}" r="5" fill="#7c3aed"/>
-                <text x="210" y="{{ y7 - 10 }}" fill="#7c3aed" font-size="11" font-weight="700" text-anchor="middle">{{ "%.1f"|format(data.proj_7.weight) }}</text>
-
-                <circle cx="370" cy="{{ y14 }}" r="5" fill="#7c3aed"/>
-                <text x="370" y="{{ y14 - 10 }}" fill="#7c3aed" font-size="11" font-weight="700" text-anchor="middle">{{ "%.1f"|format(data.proj_14.weight) }}</text>
-
-                <circle cx="660" cy="{{ y30 }}" r="6" fill="#6b21a8"/>
-                <text x="660" y="{{ y30 - 10 }}" fill="#6b21a8" font-size="12" font-weight="700" text-anchor="middle">{{ "%.1f"|format(data.proj_30.weight) }} kg</text>
-            </svg>
+        <div style="position: relative; height: 340px; width: 100%;">
+            <canvas id="weightTrajectoryChart"></canvas>
+        </div>
+        <div style="margin-top: 12px; text-align: center; color: #94a3b8; font-size: 12px;">
+            Hover over any day to inspect exact projected weight and daily delta. Click legend items to toggle lines.
         </div>
     </div>
 
@@ -242,7 +230,10 @@ AI Weight Prediction | Calorie Tracker
                         <tr>
                             <th>Day</th>
                             <th>Date</th>
-                            <th>Projected Weight</th>
+                            <th>Active Forecast ({{ data.model_name }})</th>
+                            {% if data.metabolic_trajectory and data.lstm_unlocked %}
+                                <th>Metabolic Plateau Baseline</th>
+                            {% endif %}
                             <th>Cumulative Change</th>
                         </tr>
                     </thead>
@@ -252,6 +243,11 @@ AI Weight Prediction | Calorie Tracker
                             <td>Day {{ pt.day }}</td>
                             <td>{{ pt.date }}</td>
                             <td><strong>{{ "%.2f"|format(pt.weight) }} kg</strong></td>
+                            {% if data.metabolic_trajectory and data.lstm_unlocked %}
+                                <td style="color: #0284c7;">
+                                    {{ "%.2f"|format(data.metabolic_trajectory[loop.index0].weight) }} kg
+                                </td>
+                            {% endif %}
                             <td style="color: {% if pt.change < 0 %}#10b981{% elif pt.change > 0 %}#f59e0b{% else %}#64748b{% endif %}; font-weight: 600;">
                                 {{ "%+.2f"|format(pt.change) }} kg
                             </td>
@@ -262,6 +258,150 @@ AI Weight Prediction | Calorie Tracker
             </div>
         </details>
     </div>
+
+    <!-- Chart.js Initialization Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const ctx = document.getElementById('weightTrajectoryChart');
+            if (!ctx) return;
+
+            // Prepare chart labels (Days 1 to 30)
+            const labels = [
+                {% for pt in data.trajectory %}
+                    "Day {{ pt.day }} ({{ pt.date[5:] }})"{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ];
+
+            // Primary active trajectory data
+            const activeData = [
+                {% for pt in data.trajectory %}
+                    {{ pt.weight }}{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ];
+
+            const datasets = [];
+
+            {% if data.lstm_unlocked %}
+                // When LSTM is active, show both curves for visual comparison!
+                datasets.push({
+                    label: "LSTM Deep Learning Trajectory",
+                    data: activeData,
+                    borderColor: "#7c3aed",
+                    backgroundColor: "rgba(124, 58, 237, 0.08)",
+                    borderWidth: 3,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: "#7c3aed",
+                    fill: true,
+                    tension: 0.35
+                });
+
+                {% if data.metabolic_trajectory %}
+                const metabolicData = [
+                    {% for pt in data.metabolic_trajectory %}
+                        {{ pt.weight }}{% if not loop.last %},{% endif %}
+                    {% endfor %}
+                ];
+
+                datasets.push({
+                    label: "Metabolic Adaptation Baseline",
+                    data: metabolicData,
+                    borderColor: "#0284c7",
+                    borderDash: [5, 5],
+                    borderWidth: 2,
+                    pointRadius: 2,
+                    pointHoverRadius: 5,
+                    pointBackgroundColor: "#0284c7",
+                    fill: false,
+                    tension: 0.25
+                });
+                {% endif %}
+            {% else %}
+                // Only metabolic model available
+                datasets.push({
+                    label: "Metabolic Adaptation Trajectory",
+                    data: activeData,
+                    borderColor: "#2563eb",
+                    backgroundColor: "rgba(37, 99, 235, 0.08)",
+                    borderWidth: 3,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: "#2563eb",
+                    fill: true,
+                    tension: 0.3
+                });
+            {% endif %}
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 16,
+                                font: {
+                                    size: 13,
+                                    weight: '600'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleFont: { size: 13, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    const val = context.parsed.y;
+                                    const diff = (val - {{ data.current_weight }}).toFixed(2);
+                                    const sign = diff > 0 ? "+" : "";
+                                    return ` ${context.dataset.label}: ${val.toFixed(2)} kg (${sign}${diff} kg)`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: "rgba(226, 232, 240, 0.6)"
+                            },
+                            ticks: {
+                                maxTicksLimit: 10,
+                                font: { size: 11 },
+                                color: "#64748b"
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: "rgba(226, 232, 240, 0.8)"
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(1) + " kg";
+                                },
+                                font: { size: 11 },
+                                color: "#64748b"
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 
 {% endif %}
 
