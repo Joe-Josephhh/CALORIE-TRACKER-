@@ -321,7 +321,7 @@ def extract_feature_matrix(series, feature_names=None):
 # 4. LIGHTWEIGHT LSTM DEEP LEARNING ARCHITECTURE
 # ---------------------------------------------------------------------
 
-def build_lstm_model(input_shape=(DEFAULT_WINDOW_SIZE, len(DEFAULT_FEATURE_NAMES))):
+def build_lstm_model(input_shape=(DEFAULT_WINDOW_SIZE, len(DEFAULT_FEATURE_NAMES)), seed=42):
     """
     Builds a compact Keras LSTM model for sequential next-day delta prediction.
     
@@ -341,6 +341,12 @@ def build_lstm_model(input_shape=(DEFAULT_WINDOW_SIZE, len(DEFAULT_FEATURE_NAMES
     """
     import tensorflow as tf
     from tensorflow.keras import layers, models
+
+    if seed is not None:
+        try:
+            tf.keras.utils.set_random_seed(seed)
+        except Exception:
+            pass
 
     model = models.Sequential([
         layers.Input(shape=input_shape),
@@ -362,7 +368,8 @@ def train_lstm_and_predict(
     window_size=DEFAULT_WINDOW_SIZE,
     val_split=DEFAULT_VAL_SPLIT,
     feature_names=None,
-    return_details=False
+    return_details=False,
+    seed=42
 ):
     """
     Trains an LSTM on user sequential records using strictly chronological validation.
@@ -394,6 +401,23 @@ def train_lstm_and_predict(
     """
     if feature_names is None:
         feature_names = DEFAULT_FEATURE_NAMES
+
+    import random
+    import tensorflow as tf
+
+    # DETERMINISTIC TRAINING & SEEDING:
+    # Health habit sequences are compact (14-365 days). Without an explicit seed,
+    # random weight initialization and mini-batch stochasticity cause the model to converge
+    # to different weights on consecutive requests, producing jumping predictions even
+    # when the user has not logged anything new. Setting a deterministic seed guarantees
+    # stability while still allowing the model to adapt when new data is entered.
+    if seed is not None:
+        try:
+            tf.keras.utils.set_random_seed(seed)
+        except Exception:
+            pass
+        random.seed(seed)
+        np.random.seed(seed)
 
     n_days = len(series)
     if n_days < window_size * 2:
@@ -455,7 +479,7 @@ def train_lstm_and_predict(
     sw_val = sample_weights[train_count:]
 
     # Train model on training data only
-    model = build_lstm_model(input_shape=(window_size, num_features))
+    model = build_lstm_model(input_shape=(window_size, num_features), seed=seed)
     model.fit(
         X_train, y_train,
         sample_weight=sw_train,
@@ -681,7 +705,8 @@ def predict_weight_trajectory(user_id, forecast_days=30):
                     window_size=DEFAULT_WINDOW_SIZE,
                     val_split=DEFAULT_VAL_SPLIT,
                     feature_names=DEFAULT_FEATURE_NAMES,
-                    return_details=True
+                    return_details=True,
+                    seed=42
                 )
                 if lstm_preds and len(lstm_preds) == forecast_days:
                     lstm_unlocked = True
