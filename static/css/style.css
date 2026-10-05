@@ -930,4 +930,249 @@ footer {
     border: 1px solid #e2e8f0;
     border-radius: 8px;
 }
+
+/* =========================================================
+   CUSTOM FOOD PRESETS & AUTOCOMPLETE STYLES
+   ========================================================= */
+
+.food-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.food-suggestions-box {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    max-height: 240px;
+    overflow-y: auto;
+    display: none;
+}
+
+.food-suggestion-item {
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.food-suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.food-suggestion-item:hover {
+    background: #f8fafc;
+}
+
+.food-suggestion-name {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 14px;
+}
+
+.food-suggestion-meta {
+    font-size: 12px;
+    color: #475569;
+    background: #f1f5f9;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.preset-helper-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px;
+    margin: 14px 0 20px 0;
+}
+
+.preset-helper-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.preset-helper-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+}
+
+.preset-badge-count {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.preset-search-box {
+    margin-bottom: 12px;
+    position: relative;
+}
+
+.preset-search-box input {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    padding: 9px 12px 9px 34px;
+    font-size: 13px;
+    border-radius: 7px;
+}
+
+.preset-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    color: #94a3b8;
+    pointer-events: none;
+}
+
+.preset-chips-scroll {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-height: 165px;
+    overflow-y: auto;
+    padding: 2px;
+}
+
+.preset-chip-btn {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.preset-chip-btn:hover {
+    border-color: #2563eb;
+    color: #2563eb;
+    background: #eff6ff;
+    transform: translateY(-1px);
+}
+
+.preset-chip-btn.active {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+}
+
+.preset-chip-btn.active .preset-chip-kcal {
+    color: #bfdbfe;
+}
+
+.preset-chip-kcal {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.preset-applied-alert {
+    margin-top: 12px;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.preset-applied-alert strong {
+    color: #047857;
+}
+
+.preset-applied-alert button {
+    background: none;
+    border: none;
+    color: #065f46;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+}
+
+.macros-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+    margin-bottom: 16px;
+}
+
+.macro-input-group {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.macro-input-group label {
+    margin: 0 0 5px 0;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+}
+
+.macro-input-group input {
+    background: #ffffff;
+    font-weight: 600;
+    padding: 8px;
+    font-size: 14px;
+}
+
+.micros-details {
+    margin-top: 14px;
+    margin-bottom: 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    background: #fafafa;
+}
+
+.micros-details summary {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    user-select: none;
+}
+
+.micros-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+}
 

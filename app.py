@@ -40,7 +40,8 @@ from services.prediction_service import (
 from services.nutrition_service import (
     search_foods,
     get_all_foods,
-    get_nutrition
+    get_nutrition,
+    get_general_foods_presets
 )
 
 from services.diary_service import (
@@ -549,7 +550,8 @@ def log_food():
             "log_food.html",
             selected_food=selected_food,
             preset_weights=PRESET_WEIGHTS,
-            meal_types=MEAL_TYPES
+            meal_types=MEAL_TYPES,
+            general_presets=get_general_foods_presets()
         )
 
     # ---------------------------------------------
@@ -932,7 +934,8 @@ def foods():
     return render_template(
         "foods.html",
         foods=matching_foods,
-        query=query
+        query=query,
+        general_presets=get_general_foods_presets()
     )
 
 
@@ -955,6 +958,29 @@ def api_foods():
     return {
         "foods": foods
     }
+
+
+# =========================================================
+# API GENERAL FOODS PRESETS
+# =========================================================
+
+@app.route("/api/general-foods")
+def api_general_foods():
+
+    query = request.args.get(
+        "q",
+        ""
+    ).strip().lower()
+
+    presets = get_general_foods_presets()
+
+    if query:
+        presets = [
+            p for p in presets
+            if query in p["name"].lower()
+        ]
+
+    return jsonify(presets)
 
 
 # =========================================================

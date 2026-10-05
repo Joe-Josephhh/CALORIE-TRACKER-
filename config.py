@@ -34,6 +34,13 @@ NUTRITION_CSV = Path(
     )
 )
 
+GENERAL_FOODS_CSV = Path(
+    os.getenv(
+        "GENERAL_FOODS_CSV",
+        BASE_DIR / "data" / "general_foods.csv"
+    )
+)
+
 
 UPLOAD_FOLDER = BASE_DIR / "uploads"
 

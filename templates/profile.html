@@ -28,40 +28,52 @@ My Profile - Calorie Tracker
             <div class="form-row">
                 <div class="form-group">
                     <label for="age">Age (years)</label>
-                    <input type="number" id="age" name="age" min="5" max="120" value="{{ profile['age'] if profile else '' }}" required>
+                    <input type="number" id="age" name="age" min="5" max="120"
+                        value="{{ profile['age'] if profile else '' }}" required>
                 </div>
 
                 <div class="form-group">
                     <label for="gender">Gender</label>
                     <select id="gender" name="gender" required>
-                        <option value="Male" {% if profile and profile['gender'] == 'Male' %}selected{% endif %}>Male</option>
-                        <option value="Female" {% if profile and profile['gender'] == 'Female' %}selected{% endif %}>Female</option>
-                        <option value="Other" {% if profile and profile['gender'] == 'Other' %}selected{% endif %}>Other</option>
+                        <option value="Male" {% if profile and profile['gender']=='Male' %}selected{% endif %}>Male
+                        </option>
+                        <option value="Female" {% if profile and profile['gender']=='Female' %}selected{% endif %}>
+                            Female</option>
+                        <option value="Other" {% if profile and profile['gender']=='Other' %}selected{% endif %}>Other
+                        </option>
                     </select>
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="height_cm">Height (cm)</label>
-                <input type="number" id="height_cm" name="height_cm" step="0.1" min="50" max="270" value="{{ profile['height_cm'] if profile else '' }}" required>
+                <input type="number" id="height_cm" name="height_cm" step="0.1" min="50" max="270"
+                    value="{{ profile['height_cm'] if profile else '' }}" required>
             </div>
 
             <div class="form-group">
                 <label for="goal">Goal</label>
                 <select id="goal" name="goal" required>
-                    <option value="Weight Loss" {% if profile and profile['goal'] == 'Weight Loss' %}selected{% endif %}>Weight Loss (Calorie Deficit)</option>
-                    <option value="Maintain" {% if profile and profile['goal'] == 'Maintain' %}selected{% endif %}>Maintain Weight</option>
-                    <option value="Muscle Gain" {% if profile and profile['goal'] == 'Muscle Gain' %}selected{% endif %}>Muscle Gain (Calorie Surplus)</option>
+                    <option value="Weight Loss" {% if profile and profile['goal']=='Weight Loss' %}selected{% endif %}>
+                        Weight Loss (Calorie Deficit)</option>
+                    <option value="Maintain" {% if profile and profile['goal']=='Maintain' %}selected{% endif %}>
+                        Maintain Weight</option>
+                    <option value="Muscle Gain" {% if profile and profile['goal']=='Muscle Gain' %}selected{% endif %}>
+                        Muscle Gain (Calorie Surplus)</option>
                 </select>
             </div>
 
             <div class="form-group">
                 <label for="activity_level">Activity Level</label>
                 <select id="activity_level" name="activity_level" required>
-                    <option value="Sedentary" {% if profile and profile['activity_level'] == 'Sedentary' %}selected{% endif %}>Sedentary (Little or no exercise)</option>
-                    <option value="Lightly Active" {% if profile and profile['activity_level'] == 'Lightly Active' %}selected{% endif %}>Lightly Active (1-3 days/week)</option>
-                    <option value="Moderately Active" {% if profile and profile['activity_level'] == 'Moderately Active' %}selected{% endif %}>Moderately Active (3-5 days/week)</option>
-                    <option value="Very Active" {% if profile and profile['activity_level'] == 'Very Active' %}selected{% endif %}>Very Active (6-7 days/week)</option>
+                    <option value="Sedentary" {% if profile and profile['activity_level']=='Sedentary' %}selected{%
+                        endif %}>Sedentary (Little or no exercise)</option>
+                    <option value="Lightly Active" {% if profile and profile['activity_level']=='Lightly Active'
+                        %}selected{% endif %}>Lightly Active (1-3 days/week)</option>
+                    <option value="Moderately Active" {% if profile and profile['activity_level']=='Moderately Active'
+                        %}selected{% endif %}>Moderately Active (3-5 days/week)</option>
+                    <option value="Very Active" {% if profile and profile['activity_level']=='Very Active' %}selected{%
+                        endif %}>Very Active (6-7 days/week)</option>
                 </select>
             </div>
 
@@ -74,7 +86,7 @@ My Profile - Calorie Tracker
     <!-- Weight Tracking Card -->
     <div class="card">
         <h2>⚖️ Weight Tracking</h2>
-        
+
         <div class="weight-summary-grid">
             <div class="summary-card">
                 <span>Current Weight</span>
@@ -91,14 +103,14 @@ My Profile - Calorie Tracker
             <div class="summary-card">
                 <span>Total Progress</span>
                 {% if stats['latest_weight'] is not none and stats['starting_weight'] is not none %}
-                    {% set diff = stats['total_change'] %}
-                    <strong style="color: {% if diff < 0 %}#16a34a{% elif diff > 0 %}#ea580c{% else %}#475569{% endif %};">
-                        {{ "%+.1f"|format(diff) }}
-                    </strong>
-                    <small>kg overall ({% if diff < 0 %}Lost{% elif diff > 0 %}Gained{% else %}Maintained{% endif %})</small>
+                {% set diff = stats['total_change'] %}
+                <strong style="color: {% if diff < 0 %}#16a34a{% elif diff > 0 %}#ea580c{% else %}#475569{% endif %};">
+                    {{ "%+.1f"|format(diff) }}
+                </strong>
+                <small>kg overall ({% if diff < 0 %}Lost{% elif diff> 0 %}Gained{% else %}Maintained{% endif %})</small>
                 {% else %}
-                    <strong>0.0</strong>
-                    <small>kg</small>
+                <strong>0.0</strong>
+                <small>kg</small>
                 {% endif %}
             </div>
         </div>
@@ -108,7 +120,8 @@ My Profile - Calorie Tracker
             <div class="form-row">
                 <div class="form-group">
                     <label for="new_weight_kg">Weight (kg)</label>
-                    <input type="number" id="new_weight_kg" name="weight_kg" step="0.1" min="20" max="400" placeholder="e.g. 67.5" required>
+                    <input type="number" id="new_weight_kg" name="weight_kg" step="0.1" min="20" max="400"
+                        placeholder="e.g. 67.5" required>
                 </div>
                 <div class="form-group">
                     <label for="recorded_date">Date</label>
@@ -122,34 +135,36 @@ My Profile - Calorie Tracker
 
         <h3 style="margin-top: 25px;">Weight History ({{ stats['count'] }} entries)</h3>
         {% if weight_history %}
-            <div class="weight-history-table-container">
-                <table class="styled-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Weight</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for record in weight_history|reverse %}
-                            <tr>
-                                <td>{{ record['recorded_date'] }}</td>
-                                <td><strong>{{ record['weight_kg'] }} kg</strong></td>
-                                <td>
-                                    <form action="{{ url_for('delete_weight', record_id=record['id']) }}" method="POST" style="display:inline;" onsubmit="return confirm('Remove this weight entry?');">
-                                        <button type="submit" style="background:none; border:none; color:#dc2626; cursor:pointer; font-size:13px; padding:0;">
-                                            ✕ Remove
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+        <div class="weight-history-table-container">
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Weight</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in weight_history|reverse %}
+                    <tr>
+                        <td>{{ record['recorded_date'] }}</td>
+                        <td><strong>{{ record['weight_kg'] }} kg</strong></td>
+                        <td>
+                            <form action="{{ url_for('delete_weight', record_id=record['id']) }}" method="POST"
+                                style="display:inline;" onsubmit="return confirm('Remove this weight entry?');">
+                                <button type="submit"
+                                    style="background:none; border:none; color:#dc2626; cursor:pointer; font-size:13px; padding:0;">
+                                    ✕ Remove
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
         {% else %}
-            <p class="empty-message">No weight records logged yet.</p>
+        <p class="empty-message">No weight records logged yet.</p>
         {% endif %}
     </div>
 </div>

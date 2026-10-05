@@ -5,10 +5,7 @@
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>
         {% block title %}
@@ -16,33 +13,27 @@
         {% endblock %}
     </title>
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/style.css') }}"
-    >
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
 </head>
 
 <body>
 
-<nav class="navbar">
+    <nav class="navbar">
 
-    <div class="nav-container">
+        <div class="nav-container">
 
-        <a
-            href="{{ url_for('home') }}"
-            class="logo"
-        >
-            Calorie Tracker
-        </a>
-
-        <div class="nav-links">
-
-            <a href="{{ url_for('home') }}">
-                Home
+            <a href="{{ url_for('home') }}" class="logo">
+                Calorie Tracker
             </a>
 
-            {% if logged_in %}
+            <div class="nav-links">
+
+                <a href="{{ url_for('home') }}">
+                    Home
+                </a>
+
+                {% if logged_in %}
 
                 <a href="{{ url_for('dashboard') }}">
                     Dashboard
@@ -84,7 +75,7 @@
                     Logout
                 </a>
 
-            {% else %}
+                {% else %}
 
                 <a href="{{ url_for('foods') }}">
                     Foods
@@ -98,49 +89,49 @@
                     Register
                 </a>
 
-            {% endif %}
+                {% endif %}
+
+            </div>
 
         </div>
 
-    </div>
-
-</nav>
+    </nav>
 
 
-<main class="container">
+    <main class="container">
 
-    {% with messages = get_flashed_messages(
+        {% with messages = get_flashed_messages(
         with_categories=true
-    ) %}
+        ) %}
 
         {% if messages %}
 
-            {% for category, message in messages %}
+        {% for category, message in messages %}
 
-                <div class="alert {{ category }}">
-                    {{ message }}
-                </div>
+        <div class="alert {{ category }}">
+            {{ message }}
+        </div>
 
-            {% endfor %}
+        {% endfor %}
 
         {% endif %}
 
-    {% endwith %}
+        {% endwith %}
 
 
-    {% block content %}
-    {% endblock %}
+        {% block content %}
+        {% endblock %}
 
-</main>
+    </main>
 
 
-<footer>
+    <footer>
 
-    <p>
-        Indian Food Calorie Tracker
-    </p>
+        <p>
+            Calorie Tracker
+        </p>
 
-</footer>
+    </footer>
 
 </body>
 

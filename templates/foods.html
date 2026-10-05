@@ -14,7 +14,7 @@ Food Database
     </h1>
 
     <p>
-        Search foods available in your nutrition dataset.
+        Search foods available in your nutrition dataset and staple food presets.
     </p>
 
 </div>
@@ -31,7 +31,7 @@ Food Database
             type="text"
             name="q"
             value="{{ query }}"
-            placeholder="Search food..."
+            placeholder="Search food (e.g. Parotta, Dosa, Biryani, Dal)..."
         >
 
         <button
@@ -57,7 +57,7 @@ Food Database
     {% else %}
 
     <h2>
-        Available Foods
+        Available Foods ({{ foods|length }})
     </h2>
 
     {% endif %}
@@ -102,18 +102,64 @@ Food Database
 </div>
 
 
+<!-- Common Staple Foods Presets Section -->
 <div class="card">
 
-    <h2>
-        Custom Food
-    </h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+        <div>
+            <h2 style="margin: 0;">
+                ⚡ 30 General Food Presets
+            </h2>
+            <p style="margin: 4px 0 0 0; color: #64748b; font-size: 14px;">
+                Everyday Indian &amp; Kerala staples with pre-computed macros per 100g.
+            </p>
+        </div>
 
-    <a
-        href="{{ url_for('log_food') }}"
-        class="button secondary"
-    >
-        Add Custom Food
-    </a>
+        <a
+            href="{{ url_for('log_food') }}"
+            class="button secondary"
+            style="margin: 0;"
+        >
+            + Create Custom Food
+        </a>
+    </div>
+
+    <div class="weight-history-table-container" style="max-height: 380px;">
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>Food</th>
+                    <th style="text-align: right;">kcal</th>
+                    <th style="text-align: right;">Protein</th>
+                    <th style="text-align: right;">Carbs</th>
+                    <th style="text-align: right;">Fats</th>
+                    <th style="text-align: right;">Fibre</th>
+                    <th style="text-align: center;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for preset in general_presets %}
+                <tr>
+                    <td><strong>{{ preset.name }}</strong></td>
+                    <td style="text-align: right;">{{ preset.calories|round|int }}</td>
+                    <td style="text-align: right;">{{ preset.protein }}g</td>
+                    <td style="text-align: right;">{{ preset.carbohydrates }}g</td>
+                    <td style="text-align: right;">{{ preset.fats }}g</td>
+                    <td style="text-align: right;">{{ preset.fibre }}g</td>
+                    <td style="text-align: center;">
+                        <a
+                            href="{{ url_for('log_food', food=preset.name) }}"
+                            class="button small"
+                            style="margin: 0; padding: 4px 10px; font-size: 12px; background: #2563eb;"
+                        >
+                            Log / Custom
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
 </div>
 

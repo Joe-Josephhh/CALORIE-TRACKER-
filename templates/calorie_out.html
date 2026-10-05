@@ -43,16 +43,8 @@ Calorie Out | Calorie Tracker
         <!-- Weight -->
         <div class="form-group">
             <label for="weight">Body Weight (kg)</label>
-            <input
-                type="number"
-                id="weight"
-                min="1"
-                max="500"
-                step="0.1"
-                placeholder="Example: 65"
-                value="{{ user_weight if user_weight else '' }}"
-                required
-            >
+            <input type="number" id="weight" min="1" max="500" step="0.1" placeholder="Example: 65"
+                value="{{ user_weight if user_weight else '' }}" required>
             {% if not user_weight %}
             <small style="color: #666; display: block; margin-top: 4px;">
                 Tip: Update your weight in your <a href="{{ url_for('profile') }}">Profile</a> to auto-fill here.
@@ -63,40 +55,21 @@ Calorie Out | Calorie Tracker
         <!-- Duration -->
         <div class="form-group">
             <label for="duration">Duration (minutes)</label>
-            <input
-                type="number"
-                id="duration"
-                min="1"
-                max="1440"
-                step="1"
-                placeholder="Example: 30"
-                required
-            >
+            <input type="number" id="duration" min="1" max="1440" step="1" placeholder="Example: 30" required>
         </div>
 
         <!-- Calculate Button -->
-        <button
-            type="submit"
-            class="calculate-btn"
-            id="calculateBtn"
-        >
+        <button type="submit" class="calculate-btn" id="calculateBtn">
             Calculate &amp; Log Activity
         </button>
     </form>
 
     <!-- Error -->
-    <div
-        id="errorMessage"
-        class="error-message"
-        style="display: none; background: #fee2e2; color: #b91c1c;"
-    ></div>
+    <div id="errorMessage" class="error-message" style="display: none; background: #fee2e2; color: #b91c1c;"></div>
 
     <!-- Result -->
-    <div
-        id="result"
-        class="calorie-result"
-        style="display: none; background: #f0fdf4; border: 1px solid #bbf7d0; margin-top: 20px;"
-    >
+    <div id="result" class="calorie-result"
+        style="display: none; background: #f0fdf4; border: 1px solid #bbf7d0; margin-top: 20px;">
         <h2 style="color: #15803d;">Activity Logged!</h2>
         <div class="calories-number" style="color: #dc2626;">
             <span id="caloriesBurned">0</span>
@@ -111,12 +84,8 @@ Calorie Out | Calorie Tracker
         </div>
 
         <div style="margin-top: 15px;">
-            <button
-                type="button"
-                onclick="window.location.reload();"
-                class="button"
-                style="padding: 8px 16px; font-size: 14px;"
-            >
+            <button type="button" onclick="window.location.reload();" class="button"
+                style="padding: 8px 16px; font-size: 14px;">
                 ↻ Refresh List
             </button>
         </div>
@@ -127,37 +96,41 @@ Calorie Out | Calorie Tracker
 <div class="calorie-out-card" style="margin-top: 30px;">
     <h2>Today's Activities ({{ today }})</h2>
 
-    <div style="text-align: center; margin-bottom: 20px; font-size: 17px; background: #fef2f2; padding: 12px; border-radius: 8px; border: 1px solid #fecaca;">
-        Total Burned Today: <strong style="color: #dc2626; font-size: 20px;">{{ "%.1f"|format(today_burned) }} kcal</strong>
+    <div
+        style="text-align: center; margin-bottom: 20px; font-size: 17px; background: #fef2f2; padding: 12px; border-radius: 8px; border: 1px solid #fecaca;">
+        Total Burned Today: <strong style="color: #dc2626; font-size: 20px;">{{ "%.1f"|format(today_burned) }}
+            kcal</strong>
     </div>
 
     {% if today_exercises %}
-        <div class="exercises-list">
-            {% for ex in today_exercises %}
-            <div class="diary-entry" style="align-items: center;">
-                <div>
-                    <h3 style="margin-bottom: 4px; font-size: 16px;">{{ ex.activity }}</h3>
-                    <p style="margin: 0; color: #666; font-size: 13px;">
-                        {{ ex.duration_minutes }} mins &bull; MET {{ ex.met }} &bull; {{ ex.weight_kg }} kg
-                    </p>
-                </div>
-                <div style="text-align: right;">
-                    <strong style="font-size: 16px; color: #dc2626; display: block;">
-                        -{{ "%.1f"|format(ex.calories_burned) }} kcal
-                    </strong>
-                    <form action="{{ url_for('delete_exercise', record_id=ex.id) }}" method="POST" style="margin-top: 4px;" onsubmit="return confirm('Remove this exercise entry?');">
-                        <button type="submit" style="background: none; border: none; color: #dc2626; font-size: 12px; cursor: pointer; padding: 0; text-decoration: underline;">
-                            ✕ Remove
-                        </button>
-                    </form>
-                </div>
+    <div class="exercises-list">
+        {% for ex in today_exercises %}
+        <div class="diary-entry" style="align-items: center;">
+            <div>
+                <h3 style="margin-bottom: 4px; font-size: 16px;">{{ ex.activity }}</h3>
+                <p style="margin: 0; color: #666; font-size: 13px;">
+                    {{ ex.duration_minutes }} mins &bull; MET {{ ex.met }} &bull; {{ ex.weight_kg }} kg
+                </p>
             </div>
-            {% endfor %}
+            <div style="text-align: right;">
+                <strong style="font-size: 16px; color: #dc2626; display: block;">
+                    -{{ "%.1f"|format(ex.calories_burned) }} kcal
+                </strong>
+                <form action="{{ url_for('delete_exercise', record_id=ex.id) }}" method="POST" style="margin-top: 4px;"
+                    onsubmit="return confirm('Remove this exercise entry?');">
+                    <button type="submit"
+                        style="background: none; border: none; color: #dc2626; font-size: 12px; cursor: pointer; padding: 0; text-decoration: underline;">
+                        ✕ Remove
+                    </button>
+                </form>
+            </div>
         </div>
+        {% endfor %}
+    </div>
     {% else %}
-        <p style="text-align: center; color: #888; margin: 20px 0;">
-            No physical activities logged for today yet. Use the calculator above to log your exercise!
-        </p>
+    <p style="text-align: center; color: #888; margin: 20px 0;">
+        No physical activities logged for today yet. Use the calculator above to log your exercise!
+    </p>
     {% endif %}
 </div>
 
@@ -280,7 +253,7 @@ Calorie Out | Calorie Tracker
             result.style.display = "block";
 
             // Reload page after a brief delay so the today's list updates automatically
-            setTimeout(function() {
+            setTimeout(function () {
                 window.location.reload();
             }, 1800);
 

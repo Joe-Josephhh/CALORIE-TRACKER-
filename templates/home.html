@@ -10,27 +10,21 @@ Home - Calorie Tracker
 <section class="hero">
 
     <h1>
-        Indian Food Calorie Tracker
+        Calorie Tracker
     </h1>
 
     <p>
-        Identify Indian food using your trained
+        Identify food using your trained
         EfficientNetB0 model and track its nutrition.
     </p>
 
     <div class="hero-buttons">
 
-        <a
-            href="{{ url_for('food_scan') }}"
-            class="button"
-        >
+        <a href="{{ url_for('food_scan') }}" class="button">
             Scan Food
         </a>
 
-        <a
-            href="{{ url_for('diary') }}"
-            class="button secondary"
-        >
+        <a href="{{ url_for('diary') }}" class="button secondary">
             View Diary
         </a>
 

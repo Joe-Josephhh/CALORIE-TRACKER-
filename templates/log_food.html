@@ -14,7 +14,7 @@ Log Food
     </h1>
 
     <p>
-        Enter the food and serving information.
+        Enter the food and serving information, or choose from standard presets.
     </p>
 
 </div>
@@ -26,25 +26,30 @@ Log Food
     class="card"
 >
 
-
-    <!-- Food name -->
-
+    <!-- Food name with live suggestions -->
     <label for="dish_name">
         Food Name
     </label>
 
-    <input
-        type="text"
-        id="dish_name"
-        name="dish_name"
-        value="{{ selected_food }}"
-        required
-    >
+    <div class="food-input-wrapper">
+        <input
+            type="text"
+            id="dish_name"
+            name="dish_name"
+            value="{{ selected_food }}"
+            placeholder="e.g. Kerala Parotta, Dosa, Chicken Curry..."
+            required
+            autocomplete="off"
+            oninput="handleFoodInput(this.value)"
+            onfocus="handleFoodInput(this.value)"
+        >
+
+        <div id="food_suggestions" class="food-suggestions-box"></div>
+    </div>
 
 
-    <!-- Custom food -->
-
-    <div class="checkbox-row">
+    <!-- Custom food toggle & quick helper button -->
+    <div class="checkbox-row" style="margin-top: 14px; margin-bottom: 8px;">
 
         <input
             type="checkbox"
@@ -58,11 +63,19 @@ Log Food
             This is a custom food
         </label>
 
+        <button
+            type="button"
+            class="button small"
+            style="margin-left: auto; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-weight: 600; margin-top: 0;"
+            onclick="openCustomWithPresets()"
+        >
+            ⚡ Pick from 30 Common Foods
+        </button>
+
     </div>
 
 
     <!-- Weight -->
-
     <label for="weight">
         Weight (grams)
     </label>
@@ -103,7 +116,6 @@ Log Food
 
 
     <!-- Meal type -->
-
     <label for="meal_type">
         Meal Type
     </label>
@@ -124,155 +136,206 @@ Log Food
     </select>
 
 
-    <!-- Custom nutrition -->
-
+    <!-- Custom nutrition area -->
     <div
         id="custom-nutrition"
         class="custom-nutrition"
         style="display:none;"
     >
 
-        <h2>
+        <!-- General Foods Preset Picker -->
+        <div class="preset-helper-card">
+            <div class="preset-helper-header">
+                <h3 class="preset-helper-title">
+                    <span>⚡ General Indian / Kerala Food Presets</span>
+                </h3>
+                <span class="preset-badge-count">{{ general_presets|length }} Quick Presets</span>
+            </div>
+
+            <p style="font-size: 13px; color: #64748b; margin: 0 0 10px 0;">
+                Click any staple food to automatically load its standard nutrition (per 100g). You can freely edit any numbers below.
+            </p>
+
+            <div class="preset-search-box">
+                <span class="preset-search-icon">🔍</span>
+                <input
+                    type="text"
+                    id="preset_search_input"
+                    placeholder="Search preset (e.g. Parotta, Egg, Dosa, Chicken, Dal...)"
+                    oninput="filterPresetChips(this.value)"
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="preset-chips-scroll" id="preset_chips_container">
+                {% for preset in general_presets %}
+                <button
+                    type="button"
+                    class="preset-chip-btn"
+                    data-name="{{ preset.name }}"
+                    data-calories="{{ preset.calories }}"
+                    data-protein="{{ preset.protein }}"
+                    data-carbs="{{ preset.carbohydrates }}"
+                    data-fats="{{ preset.fats }}"
+                    data-fibre="{{ preset.fibre }}"
+                    onclick="applyPreset(this)"
+                >
+                    <span>{{ preset.name }}</span>
+                    <span class="preset-chip-kcal">{{ preset.calories|round|int }} kcal</span>
+                </button>
+                {% endfor %}
+            </div>
+
+            <div id="preset_applied_alert" class="preset-applied-alert" style="display: none;">
+                <div>
+                    ✓ Loaded preset for <strong id="applied_preset_name"></strong> (<span id="applied_preset_summary"></span> per 100g). You can customize values below!
+                </div>
+                <button type="button" onclick="dismissPresetAlert()" title="Dismiss">&times;</button>
+            </div>
+        </div>
+
+        <h2 style="font-size: 18px; margin-top: 20px; margin-bottom: 8px;">
             Nutrition per 100g
         </h2>
+        <p style="font-size: 13px; color: #64748b; margin-top: 0; margin-bottom: 14px;">
+            Calories and macros will scale automatically to your entered weight.
+        </p>
 
+        <!-- Main 5 Macronutrients -->
+        <div class="macros-grid">
+            <div class="macro-input-group">
+                <label for="custom_calories">Calories (kcal)</label>
+                <input
+                    type="number"
+                    id="custom_calories"
+                    name="calories"
+                    step="0.01"
+                    value="0"
+                >
+            </div>
 
-        <label>
-            Calories (kcal)
-        </label>
+            <div class="macro-input-group">
+                <label for="custom_protein">Protein (g)</label>
+                <input
+                    type="number"
+                    id="custom_protein"
+                    name="protein"
+                    step="0.01"
+                    value="0"
+                >
+            </div>
 
-        <input
-            type="number"
-            name="calories"
-            step="0.01"
-            value="0"
-        >
+            <div class="macro-input-group">
+                <label for="custom_carbs">Carbs (g)</label>
+                <input
+                    type="number"
+                    id="custom_carbs"
+                    name="carbohydrates"
+                    step="0.01"
+                    value="0"
+                >
+            </div>
 
+            <div class="macro-input-group">
+                <label for="custom_fats">Fats (g)</label>
+                <input
+                    type="number"
+                    id="custom_fats"
+                    name="fats"
+                    step="0.01"
+                    value="0"
+                >
+            </div>
 
-        <label>
-            Protein (g)
-        </label>
+            <div class="macro-input-group">
+                <label for="custom_fibre">Fibre (g)</label>
+                <input
+                    type="number"
+                    id="custom_fibre"
+                    name="fibre"
+                    step="0.01"
+                    value="0"
+                >
+            </div>
+        </div>
 
-        <input
-            type="number"
-            name="protein"
-            step="0.01"
-            value="0"
-        >
+        <!-- Optional Micronutrients Accordion -->
+        <details class="micros-details">
+            <summary>Optional Micronutrients (Sugar, Sodium, Calcium, Iron, Vitamins...)</summary>
+            
+            <div class="micros-grid">
+                <div class="macro-input-group">
+                    <label for="custom_free_sugar">Free Sugar (g)</label>
+                    <input
+                        type="number"
+                        id="custom_free_sugar"
+                        name="free_sugar"
+                        step="0.01"
+                        value="0"
+                    >
+                </div>
 
+                <div class="macro-input-group">
+                    <label for="custom_sodium">Sodium (mg)</label>
+                    <input
+                        type="number"
+                        id="custom_sodium"
+                        name="sodium"
+                        step="0.01"
+                        value="0"
+                    >
+                </div>
 
-        <label>
-            Carbohydrates (g)
-        </label>
+                <div class="macro-input-group">
+                    <label for="custom_calcium">Calcium (mg)</label>
+                    <input
+                        type="number"
+                        id="custom_calcium"
+                        name="calcium"
+                        step="0.01"
+                        value="0"
+                    >
+                </div>
 
-        <input
-            type="number"
-            name="carbohydrates"
-            step="0.01"
-            value="0"
-        >
+                <div class="macro-input-group">
+                    <label for="custom_iron">Iron (mg)</label>
+                    <input
+                        type="number"
+                        id="custom_iron"
+                        name="iron"
+                        step="0.01"
+                        value="0"
+                    >
+                </div>
 
+                <div class="macro-input-group">
+                    <label for="custom_vitamin_c">Vitamin C (mg)</label>
+                    <input
+                        type="number"
+                        id="custom_vitamin_c"
+                        name="vitamin_c"
+                        step="0.01"
+                        value="0"
+                    >
+                </div>
 
-        <label>
-            Fats (g)
-        </label>
-
-        <input
-            type="number"
-            name="fats"
-            step="0.01"
-            value="0"
-        >
-
-
-        <label>
-            Free Sugar (g)
-        </label>
-
-        <input
-            type="number"
-            name="free_sugar"
-            step="0.01"
-            value="0"
-        >
-
-
-        <label>
-            Fibre (g)
-        </label>
-
-        <input
-            type="number"
-            name="fibre"
-            step="0.01"
-            value="0"
-        >
-
-
-        <label>
-            Sodium (mg)
-        </label>
-
-        <input
-            type="number"
-            name="sodium"
-            step="0.01"
-            value="0"
-        >
-
-
-        <label>
-            Calcium (mg)
-        </label>
-
-        <input
-            type="number"
-            name="calcium"
-            step="0.01"
-            value="0"
-        >
-
-
-        <label>
-            Iron (mg)
-        </label>
-
-        <input
-            type="number"
-            name="iron"
-            step="0.01"
-            value="0"
-        >
-
-
-        <label>
-            Vitamin C (mg)
-        </label>
-
-        <input
-            type="number"
-            name="vitamin_c"
-            step="0.01"
-            value="0"
-        >
-
-
-        <label>
-            Folate (µg)
-        </label>
-
-        <input
-            type="number"
-            name="folate"
-            step="0.01"
-            value="0"
-        >
+                <div class="macro-input-group">
+                    <label for="custom_folate">Folate (µg)</label>
+                    <input
+                        type="number"
+                        id="custom_folate"
+                        name="folate"
+                        step="0.01"
+                        value="0"
+                    >
+                </div>
+            </div>
+        </details>
 
     </div>
 
 
     <!-- Notes -->
-
     <label for="notes">
         Notes
     </label>
@@ -280,7 +343,7 @@ Log Food
     <textarea
         id="notes"
         name="notes"
-        rows="4"
+        rows="3"
         placeholder="Optional notes..."
     ></textarea>
 
@@ -297,44 +360,190 @@ Log Food
 
 <script>
 
+// General presets embedded from backend
+const GENERAL_PRESETS = {{ general_presets|tojson }};
+
 function setWeight() {
+    const select = document.getElementById("weight");
+    const input = document.getElementById("weight_input");
 
-    const select =
-        document.getElementById("weight");
-
-    const input =
-        document.getElementById("weight_input");
-
-    if (select.value !== "custom" &&
-        select.value !== "") {
-
-        input.value =
-            select.value;
+    if (select.value !== "custom" && select.value !== "") {
+        input.value = select.value;
     }
-
 }
-
 
 function toggleCustomNutrition() {
-
-    const checkbox =
-        document.getElementById("custom_food");
-
-    const section =
-        document.getElementById("custom-nutrition");
+    const checkbox = document.getElementById("custom_food");
+    const section = document.getElementById("custom-nutrition");
 
     if (checkbox.checked) {
-
-        section.style.display =
-            "block";
-
+        section.style.display = "block";
     } else {
+        section.style.display = "none";
+    }
+}
 
-        section.style.display =
-            "none";
+function openCustomWithPresets() {
+    const checkbox = document.getElementById("custom_food");
+    const section = document.getElementById("custom-nutrition");
+    checkbox.checked = true;
+    section.style.display = "block";
+
+    const filterInput = document.getElementById("preset_search_input");
+    if (filterInput) {
+        filterInput.focus();
+        filterInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+function applyPreset(btn) {
+    const name = btn.dataset.name;
+    const calories = btn.dataset.calories;
+    const protein = btn.dataset.protein;
+    const carbs = btn.dataset.carbs;
+    const fats = btn.dataset.fats;
+    const fibre = btn.dataset.fibre;
+
+    // Set food name
+    document.getElementById("dish_name").value = name;
+
+    // Ensure custom checkbox is checked and custom nutrition is visible
+    const checkbox = document.getElementById("custom_food");
+    checkbox.checked = true;
+    document.getElementById("custom-nutrition").style.display = "block";
+
+    // Populate macro values
+    document.getElementById("custom_calories").value = calories;
+    document.getElementById("custom_protein").value = protein;
+    document.getElementById("custom_carbs").value = carbs;
+    document.getElementById("custom_fats").value = fats;
+    document.getElementById("custom_fibre").value = fibre;
+
+    // Reset optional micronutrients
+    document.getElementById("custom_free_sugar").value = "0";
+    document.getElementById("custom_sodium").value = "0";
+    document.getElementById("custom_calcium").value = "0";
+    document.getElementById("custom_iron").value = "0";
+    document.getElementById("custom_vitamin_c").value = "0";
+    document.getElementById("custom_folate").value = "0";
+
+    // Highlight active chip
+    document.querySelectorAll(".preset-chip-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    // Show alert banner
+    const alertBox = document.getElementById("preset_applied_alert");
+    document.getElementById("applied_preset_name").textContent = name;
+    document.getElementById("applied_preset_summary").textContent = 
+        `${calories} kcal | ${protein}g P | ${carbs}g C | ${fats}g F | ${fibre}g Fibre`;
+    alertBox.style.display = "flex";
+
+    // Close any open food autocomplete suggestions
+    closeSuggestions();
+}
+
+function applyPresetByName(presetName) {
+    if (!presetName) return false;
+    const match = GENERAL_PRESETS.find(p => p.name.toLowerCase() === presetName.trim().toLowerCase());
+    if (match) {
+        const btn = document.querySelector(`.preset-chip-btn[data-name="${match.name}"]`);
+        if (btn) {
+            applyPreset(btn);
+            return true;
+        } else {
+            // Apply directly from object
+            document.getElementById("dish_name").value = match.name;
+            document.getElementById("custom_food").checked = true;
+            document.getElementById("custom-nutrition").style.display = "block";
+            document.getElementById("custom_calories").value = match.calories;
+            document.getElementById("custom_protein").value = match.protein;
+            document.getElementById("custom_carbs").value = match.carbohydrates;
+            document.getElementById("custom_fats").value = match.fats;
+            document.getElementById("custom_fibre").value = match.fibre;
+
+            const alertBox = document.getElementById("preset_applied_alert");
+            document.getElementById("applied_preset_name").textContent = match.name;
+            document.getElementById("applied_preset_summary").textContent = 
+                `${match.calories} kcal | ${match.protein}g P | ${match.carbohydrates}g C | ${match.fats}g F | ${match.fibre}g Fibre`;
+            alertBox.style.display = "flex";
+            return true;
+        }
+    }
+    return false;
+}
+
+function dismissPresetAlert() {
+    document.getElementById("preset_applied_alert").style.display = "none";
+}
+
+function filterPresetChips(query) {
+    const term = query.trim().toLowerCase();
+    const buttons = document.querySelectorAll(".preset-chip-btn");
+
+    buttons.forEach(btn => {
+        const name = (btn.dataset.name || "").toLowerCase();
+        if (!term || name.includes(term)) {
+            btn.style.display = "inline-flex";
+        } else {
+            btn.style.display = "none";
+        }
+    });
+}
+
+// Autocomplete dropdown on Food Name input
+function handleFoodInput(val) {
+    const term = (val || "").trim().toLowerCase();
+    const box = document.getElementById("food_suggestions");
+
+    if (!term || term.length < 1) {
+        box.style.display = "none";
+        box.innerHTML = "";
+        return;
     }
 
+    const matches = GENERAL_PRESETS.filter(p => p.name.toLowerCase().includes(term)).slice(0, 6);
+
+    if (matches.length === 0) {
+        box.style.display = "none";
+        box.innerHTML = "";
+        return;
+    }
+
+    let html = "";
+    matches.forEach(p => {
+        html += `
+            <div class="food-suggestion-item" onclick="applyPresetByName('${p.name.replace(/'/g, "\\'")}')">
+                <span class="food-suggestion-name">⚡ ${p.name}</span>
+                <span class="food-suggestion-meta">${Math.round(p.calories)} kcal · ${p.protein}g P · ${p.carbohydrates}g C</span>
+            </div>
+        `;
+    });
+
+    box.innerHTML = html;
+    box.style.display = "block";
 }
+
+function closeSuggestions() {
+    const box = document.getElementById("food_suggestions");
+    if (box) {
+        box.style.display = "none";
+    }
+}
+
+// Close suggestions on outside click
+document.addEventListener("click", function(e) {
+    if (!e.target.closest(".food-input-wrapper")) {
+        closeSuggestions();
+    }
+});
+
+// Auto-select on initial page load if matching food is passed in URL query
+document.addEventListener("DOMContentLoaded", function() {
+    const initialFood = document.getElementById("dish_name").value;
+    if (initialFood) {
+        applyPresetByName(initialFood);
+    }
+});
 
 </script>
 

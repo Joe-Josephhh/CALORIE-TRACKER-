@@ -1,6 +1,5 @@
 import pandas as pd
-
-from config import NUTRITION_CSV
+from config import NUTRITION_CSV, GENERAL_FOODS_CSV
 
 
 # ---------------------------------------------------------
@@ -53,10 +52,45 @@ def load_nutrition_database():
     return df, dish_col
 
 
+def load_general_foods_database():
+    if not GENERAL_FOODS_CSV.exists():
+        return pd.DataFrame(), "Dish Name"
+
+    try:
+        from io import StringIO
+        with open(
+            GENERAL_FOODS_CSV,
+            "r",
+            encoding="utf-8-sig"
+        ) as file:
+            raw_data = file.read()
+
+        gdf = pd.read_csv(StringIO(raw_data))
+        gdf.columns = gdf.columns.str.strip()
+
+        dish_col = None
+        for col in gdf.columns:
+            if "dish" in col.lower() or "food" in col.lower():
+                dish_col = col
+                break
+        if dish_col is None:
+            dish_col = gdf.columns[0]
+
+        gdf[dish_col] = gdf[dish_col].astype(str).str.strip()
+        return gdf, dish_col
+    except Exception as e:
+        print(f"Error loading general foods database: {e}")
+        return pd.DataFrame(), "Dish Name"
+
+
 df, dish_col = load_nutrition_database()
+general_df, general_dish_col = load_general_foods_database()
 
 print(
     f"Loaded {len(df)} dishes from nutrition database."
+)
+print(
+    f"Loaded {len(general_df)} dishes from general foods presets database."
 )
 
 
@@ -91,11 +125,20 @@ def get_nutrition(
     if weight <= 0:
         return None
 
+    # Check primary ML nutrition dataset
     matching = df[
         df[dish_col]
         .str.lower()
         == dish_name.strip().lower()
     ]
+
+    # If not found, check general foods database
+    if matching.empty and not general_df.empty:
+        matching = general_df[
+            general_df[general_dish_col]
+            .str.lower()
+            == dish_name.strip().lower()
+        ]
 
     if matching.empty:
         return None
@@ -143,6 +186,13 @@ def get_nutrition_per_100g(
         == dish_name.strip().lower()
     ]
 
+    if matching.empty and not general_df.empty:
+        matching = general_df[
+            general_df[general_dish_col]
+            .str.lower()
+            == dish_name.strip().lower()
+        ]
+
     if matching.empty:
         return None
 
@@ -185,11 +235,7 @@ def search_foods(
     )
 
     if not search_term:
-
-        return (
-            df[dish_col]
-            .tolist()
-        )
+        return get_all_foods()
 
     matches = df[
         df[dish_col]
@@ -198,12 +244,23 @@ def search_foods(
             search_term,
             na=False
         )
-    ]
+    ][dish_col].tolist()
 
-    return (
-        matches[dish_col]
-        .tolist()
-    )
+    if not general_df.empty:
+        gen_matches = general_df[
+            general_df[general_dish_col]
+            .str.lower()
+            .str.contains(
+                search_term,
+                na=False
+            )
+        ][general_dish_col].tolist()
+
+        for item in gen_matches:
+            if item not in matches:
+                matches.append(item)
+
+    return matches
 
 
 # ---------------------------------------------------------
@@ -212,10 +269,14 @@ def search_foods(
 
 def get_all_foods():
 
-    return (
-        df[dish_col]
-        .tolist()
-    )
+    foods = df[dish_col].tolist()
+
+    if not general_df.empty:
+        for item in general_df[general_dish_col].tolist():
+            if item not in foods:
+                foods.append(item)
+
+    return foods
 
 
 # ---------------------------------------------------------
@@ -239,3 +300,62 @@ def scale_custom_nutrition(
         )
 
     return nutrition
+
+
+# ---------------------------------------------------------
+# General foods presets for Custom Food area
+# ---------------------------------------------------------
+
+def get_general_foods_presets():
+    """
+    Returns list of predefined common foods with macros per 100g,
+    ideal for instant auto-filling and custom food suggestions.
+    """
+    if general_df.empty:
+        return []
+
+    presets = []
+    for _, row in general_df.iterrows():
+        name = str(row[general_dish_col]).strip()
+        try:
+            calories = float(row.get("Calories (kcal)", 0))
+        except (ValueError, TypeError):
+            calories = 0.0
+
+        try:
+            protein = float(row.get("Protein (g)", 0))
+        except (ValueError, TypeError):
+            protein = 0.0
+
+        try:
+            carbohydrates = float(row.get("Carbohydrates (g)", 0))
+        except (ValueError, TypeError):
+            carbohydrates = 0.0
+
+        try:
+            fats = float(row.get("Fats (g)", 0))
+        except (ValueError, TypeError):
+            fats = 0.0
+
+        try:
+            fibre = float(row.get("Fibre (g)", 0))
+        except (ValueError, TypeError):
+            fibre = 0.0
+
+        item = {
+            "name": name,
+            "calories": calories,
+            "protein": protein,
+            "carbohydrates": carbohydrates,
+            "fats": fats,
+            "fibre": fibre,
+            "free_sugar": 0.0,
+            "sodium": 0.0,
+            "calcium": 0.0,
+            "iron": 0.0,
+            "vitamin_c": 0.0,
+            "folate": 0.0
+        }
+        presets.append(item)
+
+    return presets
