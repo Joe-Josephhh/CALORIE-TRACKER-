@@ -180,12 +180,17 @@ AI Weight Prediction | Calorie Tracker
                 </p>
             </div>
             {% if data.lstm_unlocked %}
-            <div style="display: flex; gap: 8px;">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                 <span style="font-size: 12px; background: #faf5ff; color: #7c3aed; border: 1px solid #e9d5ff; padding: 4px 10px; border-radius: 6px; font-weight: 600;">
-                    🟣 LSTM Deep Learning
+                    🟣 Hybrid Forecast (Active)
                 </span>
+                {% if data.lstm_trajectory %}
+                <span style="font-size: 12px; background: #fdf4ff; color: #c026d3; border: 1px solid #f5d0fe; padding: 4px 10px; border-radius: 6px; font-weight: 600;">
+                    🌸 LSTM Neural Trajectory
+                </span>
+                {% endif %}
                 <span style="font-size: 12px; background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 10px; border-radius: 6px; font-weight: 600;">
-                    🔵 Metabolic Adaptation Baseline
+                    🔵 Metabolic Baseline
                 </span>
             </div>
             {% endif %}
@@ -231,8 +236,11 @@ AI Weight Prediction | Calorie Tracker
                             <th>Day</th>
                             <th>Date</th>
                             <th>Active Forecast ({{ data.model_name }})</th>
+                            {% if data.lstm_trajectory and data.lstm_unlocked %}
+                                <th>Pure LSTM Neural</th>
+                            {% endif %}
                             {% if data.metabolic_trajectory and data.lstm_unlocked %}
-                                <th>Metabolic Plateau Baseline</th>
+                                <th>Metabolic Baseline</th>
                             {% endif %}
                             <th>Cumulative Change</th>
                         </tr>
@@ -243,6 +251,11 @@ AI Weight Prediction | Calorie Tracker
                             <td>Day {{ pt.day }}</td>
                             <td>{{ pt.date }}</td>
                             <td><strong>{{ "%.2f"|format(pt.weight) }} kg</strong></td>
+                            {% if data.lstm_trajectory and data.lstm_unlocked %}
+                                <td style="color: #c026d3; font-weight: 500;">
+                                    {{ "%.2f"|format(data.lstm_trajectory[loop.index0].weight) }} kg
+                                </td>
+                            {% endif %}
                             {% if data.metabolic_trajectory and data.lstm_unlocked %}
                                 <td style="color: #0284c7;">
                                     {{ "%.2f"|format(data.metabolic_trajectory[loop.index0].weight) }} kg
@@ -282,9 +295,9 @@ AI Weight Prediction | Calorie Tracker
             const datasets = [];
 
             {% if data.lstm_unlocked %}
-                // When LSTM is active, show both curves for visual comparison!
+                // Hybrid Ensemble Active Forecast
                 datasets.push({
-                    label: "LSTM Deep Learning Trajectory",
+                    label: "Hybrid Forecast (Active)",
                     data: activeData,
                     borderColor: "#7c3aed",
                     backgroundColor: "rgba(124, 58, 237, 0.08)",
@@ -296,7 +309,30 @@ AI Weight Prediction | Calorie Tracker
                     tension: 0.35
                 });
 
+                {% if data.lstm_trajectory %}
+                // Pure LSTM Deep Learning Neural Model Trajectory
+                const lstmData = [
+                    {% for pt in data.lstm_trajectory %}
+                        {{ pt.weight }}{% if not loop.last %},{% endif %}
+                    {% endfor %}
+                ];
+
+                datasets.push({
+                    label: "LSTM Deep Learning (Pure Neural)",
+                    data: lstmData,
+                    borderColor: "#c026d3",
+                    borderDash: [3, 3],
+                    borderWidth: 2,
+                    pointRadius: 2,
+                    pointHoverRadius: 5,
+                    pointBackgroundColor: "#c026d3",
+                    fill: false,
+                    tension: 0.3
+                });
+                {% endif %}
+
                 {% if data.metabolic_trajectory %}
+                // Thermodynamic Metabolic Baseline
                 const metabolicData = [
                     {% for pt in data.metabolic_trajectory %}
                         {{ pt.weight }}{% if not loop.last %},{% endif %}

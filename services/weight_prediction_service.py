@@ -4,7 +4,6 @@ from database import (
     get_user_profile,
     get_latest_weight,
     get_starting_weight,
-    get_weight_history,
     get_user_history_daily
 )
 
@@ -426,6 +425,7 @@ def train_lstm_and_predict(
     # Extract full feature matrix of shape (n_days, num_features)
     raw_features = extract_feature_matrix(series, feature_names=feature_names)
     num_features = len(feature_names)
+    weight_col_idx = feature_names.index("weight_kg") if "weight_kg" in feature_names else 3
 
     # Total possible sequence pairs: M = n_days - window_size
     total_sequences = n_days - window_size
@@ -454,7 +454,7 @@ def train_lstm_and_predict(
     for i in range(total_sequences):
         X_all.append(norm_features[i:i + window_size])
         # Target: daily delta in weight (kg) from day t to day t+1
-        target_delta = raw_features[i + window_size, 3] - raw_features[i + window_size - 1, 3]
+        target_delta = raw_features[i + window_size, weight_col_idx] - raw_features[i + window_size - 1, weight_col_idx]
         y_all.append(target_delta)
 
         # Missing weight target safety:
@@ -500,8 +500,8 @@ def train_lstm_and_predict(
     for j in range(len(X_val)):
         base_day = train_count + j + window_size - 1
         target_day = train_count + j + window_size
-        base_w = raw_features[base_day, 3]
-        act_w = raw_features[target_day, 3]
+        base_w = raw_features[base_day, weight_col_idx]
+        act_w = raw_features[target_day, weight_col_idx]
 
         # Apply smooth physiological dampening to delta
         pred_d = float(0.20 * np.tanh(val_pred_deltas[j] / 0.15))
@@ -554,13 +554,18 @@ def train_lstm_and_predict(
     predicted_weights = []
 
     for step in range(1, forecast_days + 1):
-        # Extract features for the latest window_size days in forecast_buffer
-        last_window_slice = forecast_buffer[-window_size:]
-        raw_window = extract_feature_matrix(last_window_slice, feature_names=feature_names)
+        # Provide at least (window_size + 6) days of historical context so that every
+        # timestep in the window has a true 7-day rolling average and trend,
+        # exactly matching the feature distribution used during model training.
+        context_len = min(len(forecast_buffer), window_size + 6)
+        context_slice = forecast_buffer[-context_len:]
+        raw_context = extract_feature_matrix(context_slice, feature_names=feature_names)
+        raw_window = raw_context[-window_size:]
         norm_window = (raw_window - train_mean) / train_std
         input_data = norm_window.reshape(1, window_size, num_features)
 
-        pred_delta = float(model.predict(input_data, verbose=0)[0, 0])
+        # Direct tensor invocation: ~3x faster than model.predict inside recursive forecasting loops
+        pred_delta = float(model(input_data, training=False)[0, 0])
 
         # Smooth physiological dampening:
         # Scaled delta = 0.20 * tanh(pred_delta / 0.15)
@@ -662,6 +667,9 @@ def predict_weight_trajectory(user_id, forecast_days=30):
         recent = series[-14:]
         avg_calories_in = float(np.mean([s["calories_in"] for s in recent]))
         avg_exercise_burned = float(np.mean([s["calories_out"] for s in recent]))
+        # Safety guard: if user tracked weight but logged minimal/no food, assume maintenance TDEE
+        if avg_calories_in <= 500:
+            avg_calories_in = tdee
     else:
         avg_calories_in = tdee
         avg_exercise_burned = 0.0
@@ -720,6 +728,12 @@ def predict_weight_trajectory(user_id, forecast_days=30):
             except Exception as e:
                 print("LSTM prediction fallback to metabolic model:", e)
                 status_reason = "LSTM encountered an issue; utilizing Metabolic Adaptation Model."
+            finally:
+                try:
+                    import tensorflow as tf
+                    tf.keras.backend.clear_session()
+                except Exception:
+                    pass
     else:
         status_reason = f"Log {days_logged}/14 days to unlock personalized LSTM Deep Learning."
 

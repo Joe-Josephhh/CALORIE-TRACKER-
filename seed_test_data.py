@@ -399,6 +399,11 @@ def seed_database(days=180, end_date=None, username=TEST_USERNAME, password=TEST
             })
 
     # Step 4: Batch Insert Records into Database
+    # Clear prior records for this user to guarantee idempotent re-seeding
+    cursor.execute("DELETE FROM calorie_in_records WHERE user_id = ?", (user_id,))
+    cursor.execute("DELETE FROM calorie_out_records WHERE user_id = ?", (user_id,))
+    cursor.execute("DELETE FROM weight_records WHERE user_id = ?", (user_id,))
+
     # 4a. Calorie In
     cursor.executemany("""
         INSERT INTO calorie_in_records (

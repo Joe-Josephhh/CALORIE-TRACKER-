@@ -1358,7 +1358,11 @@ def predict_weight():
     AI and metabolic weight prediction for the authenticated user.
     """
     user_id = session.get("user_id")
-    forecast_data = predict_weight_trajectory(user_id, forecast_days=30)
+    try:
+        forecast_data = predict_weight_trajectory(user_id, forecast_days=30)
+    except Exception as e:
+        flash(f"Error calculating weight prediction: {e}", "danger")
+        return redirect(url_for("dashboard"))
     return render_template("predict_weight.html", data=forecast_data)
 
 
