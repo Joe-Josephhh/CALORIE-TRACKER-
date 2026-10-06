@@ -175,11 +175,28 @@ Dashboard | Calorie Tracker
             {{ "%.1f"|format(calories_in) }}
         </div>
         <p style="margin-bottom: 10px;">kcal consumed</p>
-        <div style="font-size: 12px; color: #64748b; background: #f8fafc; padding: 6px 10px; border-radius: 6px;">
-            <strong>P:</strong> {{ "%.1f"|format(food_totals.get("Protein (g)", 0)) }}g &bull;
-            <strong>C:</strong> {{ "%.1f"|format(food_totals.get("Carbohydrates (g)", 0)) }}g &bull;
-            <strong>F:</strong> {{ "%.1f"|format(food_totals.get("Fats (g)", 0)) }}g
+
+
+        <div style="font-size: 16px; color: #64748b; background: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+
+            <div style="display: flex; align-items: center; display: flex; align-items: center; justify-content: center;">
+                <strong style="width: 25px; flex-shrink: 0;">P:</strong>
+                <strong>{{ "%.1f"|format(food_totals.get("Protein (g)", 0)) }}g</strong>
+            </div>
+
+            <div style="display: flex; align-items: center; display: flex; align-items: center; justify-content: center;">
+                <strong style="width: 25px; flex-shrink: 0;">C:</strong>
+                <strong>{{ "%.1f"|format(food_totals.get("Carbohydrates (g)", 0)) }}g</strong>
+            </div>
+
+            <div style="display: flex; align-items: center; display: flex; align-items: center; justify-content: center;">
+                <strong style="width: 25px; flex-shrink: 0;">F:</strong>
+                <strong>{{ "%.1f"|format(food_totals.get("Fats (g)", 0)) }}g</strong>
+            </div>
+
         </div>
+
+
     </div>
 
     <!-- 2. Calories Out -->

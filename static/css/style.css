@@ -5,15 +5,19 @@
 
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: "Segoe UI", sans-serif;
     background: #f5f6f8;
     color: #222;
+    text-transform: uppercase;
 }
+
 
 
 .navbar {
     background: #ffffff;
     border-bottom: 1px solid #ddd;
+    font-family: "Trebuchet MS", sans-serif;
+    font-weight: bold;
 }
 
 
@@ -81,6 +85,7 @@ body {
 
 .hero-buttons {
     margin-top: 25px;
+    text-transform: uppercase;
 }
 
 
@@ -94,17 +99,20 @@ body {
     border-radius: 8px;
     cursor: pointer;
     margin-top: 10px;
+    text-transform: uppercase;
 }
 
 
 .button.secondary {
     background: #777;
+    text-transform: uppercase;
 }
 
 
 .button.small {
     padding: 7px 12px;
     font-size: 13px;
+    text-transform: uppercase;
 }
 
 
@@ -114,8 +122,14 @@ body {
     margin-bottom: 20px;
     border-radius: 12px;
     border: 1px solid #e2e2e2;
+    font-size: 14px;
 }
 
+.cardsubtitles {
+    font-size: 12px;
+    text-transform: lowercase;
+
+}
 
 .feature-grid {
     display: grid;
@@ -835,6 +849,8 @@ footer {
     font-weight: 600;
     font-size: 13px;
     color: #334155;
+    position: relative;
+    top: -3px;
 }
 
 .nav-link-btn {
@@ -844,6 +860,8 @@ footer {
     border-radius: 6px;
     font-weight: 500;
     font-size: 14px;
+    position: relative;
+    top: -3px;
 }
 
 .nav-link-btn:hover {
@@ -1175,4 +1193,4 @@ footer {
     gap: 10px;
     margin-top: 12px;
 }
-
+

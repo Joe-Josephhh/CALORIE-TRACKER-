@@ -14,12 +14,11 @@ Home - Calorie Tracker
     </h1>
 
     <p>
-        Identify food using your trained
-        EfficientNetB0 model and track its nutrition.
+        Scan. Track. Thrive.
     </p>
 
     <div class="hero-buttons">
-
+        <!--
         <a href="{{ url_for('food_scan') }}" class="button">
             Scan Food
         </a>
@@ -27,6 +26,7 @@ Home - Calorie Tracker
         <a href="{{ url_for('diary') }}" class="button secondary">
             View Diary
         </a>
+        -->
 
     </div>
 
@@ -37,11 +37,10 @@ Home - Calorie Tracker
 
     <div class="card">
 
-        <h2>Food Recognition</h2>
+        <h2>AI-Based Food Recognition</h2>
 
-        <p>
-            Upload an image and let the trained
-            EfficientNetB0 model predict the food.
+        <p class="cardsubtitles">
+            Identifies supported food items from images.
         </p>
 
     </div>
@@ -49,11 +48,10 @@ Home - Calorie Tracker
 
     <div class="card">
 
-        <h2>Nutrition</h2>
+        <h2>Calorie & Nutrition Tracking</h2>
 
-        <p>
-            Calculate calories and nutrients
-            according to the food weight.
+        <p class="cardsubtitles">
+            Tracks daily food intake, calories, and nutritional data using SQLite.
         </p>
 
     </div>
@@ -61,11 +59,10 @@ Home - Calorie Tracker
 
     <div class="card">
 
-        <h2>Food Diary</h2>
+        <h2>LSTM-Based Prediction</h2>
 
-        <p>
-            Record meals and view daily or
-            date-range nutrition summaries.
+        <p class="cardsubtitles">
+            Analyzes historical dietary data to predict future calorie/weight trends.
         </p>
 
     </div>
