@@ -1,0 +1,26 @@
+flowchart TD
+  A([User logs in]) --> B["Profile + weigh-ins<br/>/profile, /weight/add"]
+  B --> W[(weight_records, user_profiles)]
+  A --> C["Upload food image<br/>/food-scan -> /predict"]
+  C --> D["Resize 224x224<br/>EfficientNet preprocess_input"]
+  D --> E["EfficientNet-B0 softmax<br/>top-5 classes + confidence"]
+  E --> F["User picks a class and a serving weight (g)<br/>/log-food"]
+  F --> G["Nutrition lookup by dish name<br/>value_per_100g x weight/100"]
+  G --> H[(calorie_in_records)]
+  A --> I["Choose activity + minutes<br/>/calorie-out"]
+  I --> J["kcal = MET x 3.5 x kg / 200 x min"]
+  J --> K[(calorie_out_records)]
+  H --> L["get_user_history_daily<br/>one row per logged date"]
+  K --> L
+  W --> L
+  L --> M{">= 14 logged days<br/>and last log <= 3 days ago?"}
+  M -- No --> N["Metabolic baseline only"]
+  M -- Yes --> O["Train LSTM on demand<br/>7-day window, next-day delta"]
+  O --> P["Recursive 30-day LSTM forecast"]
+  N --> Q["Metabolic 30-day simulation"]
+  P --> R["Hybrid blend with metabolic curve"]
+  Q --> R
+  R --> S["Insights + 7/14/30-day projections<br/>/predict-weight"]
+  H --> T["Daily coach<br/>/dashboard"]
+  K --> T
+  W --> T

@@ -1,0 +1,17 @@
+flowchart LR
+  U([User / Browser]) --> FE["Front end<br/>Jinja2 templates, CSS, JS, Chart.js"]
+  FE --> BE["Flask back end<br/>app.py (routes, session login)"]
+  BE --> IMG["prediction_service.py<br/>EfficientNet-B0 classifier"]
+  BE --> NUT["nutrition_service.py<br/>CSV lookup, per-100 g scaling"]
+  BE --> MET["calorie_burn_service.py<br/>MET calculation"]
+  BE --> DIA["diary_service.py"]
+  BE --> COA["coach_service.py<br/>rule-based daily coach"]
+  BE --> WPS["weight_prediction_service.py<br/>LSTM + metabolic + hybrid"]
+  IMG --- MDL[("best_model_finetuned.keras<br/>configs/class_names.csv")]
+  NUT --- CSV1[("Indian_Food_macros.csv<br/>general_foods.csv")]
+  MET --- CSV2[("met.csv")]
+  DIA <--> DB[("SQLite<br/>calorie_tracker.db")]
+  COA <--> DB
+  WPS <--> DB
+  BE <--> DB
+  BE --> FE

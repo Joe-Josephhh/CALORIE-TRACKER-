@@ -1,0 +1,11 @@
+flowchart TD
+  H["Daily series (logged dates only)<br/>calories_in, calories_out, net, weight"] --> I["Weight gaps: linear interpolation<br/>weight_measured = False"]
+  I --> F["8 features per day<br/>incl. 7-day rolling means and trend"]
+  F --> S["Sliding 7-day windows<br/>target = next-day weight change"]
+  S --> SP["Chronological split<br/>last 20% (min 3) = validation"]
+  SP --> SC["z-score scaler fitted on training part only"]
+  SC --> L["LSTM(16) -> Dense(8, relu) -> Dense(1)<br/>Adam, MSE, 30 epochs, batch 4"]
+  L --> R["Recursive 30-day rollout<br/>delta -> 0.20 tanh(d/0.15), clamp +-0.30 kg"]
+  R --> HY["alpha(t) = max(0.35, 0.80 - 0.35 t/29) x rmse_conf<br/>hybrid = alpha LSTM + (1-alpha) metabolic"]
+  M["Metabolic baseline<br/>Mifflin-St Jeor, TDEE, 7,700 kcal/kg,<br/>weight recalculated daily, clamp +-0.25 kg"] --> HY
+  HY --> OUT["Trajectory, 7/14/30-day projections"]

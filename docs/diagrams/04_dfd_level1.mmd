@@ -1,0 +1,40 @@
+flowchart LR
+  U["User"]
+  P1(("1.0<br/>Manage account<br/>and profile"))
+  P2(("2.0<br/>Classify<br/>food image"))
+  P3(("3.0<br/>Estimate and log<br/>nutrition"))
+  P4(("4.0<br/>Estimate and log<br/>activity calories"))
+  P5(("5.0<br/>Prepare daily<br/>history"))
+  P6(("6.0<br/>Forecast<br/>weight"))
+  P7(("7.0<br/>Coach and<br/>dashboard"))
+  D1[("D1 users,<br/>user_profiles")]
+  D2[("D2 weight_records")]
+  D3[("D3 calorie_in_records")]
+  D4[("D4 calorie_out_records")]
+  D5[("D5 Keras model +<br/>class_names.csv")]
+  D6[("D6 nutrition CSVs")]
+  D7[("D7 met.csv")]
+  U -- "register, profile, weigh-in" --> P1
+  P1 -- "write" --> D1
+  P1 -- "write" --> D2
+  U -- "image" --> P2
+  D5 -- "read weights, labels" --> P2
+  P2 -- "top-5 classes" --> U
+  U -- "dish, grams, meal" --> P3
+  D6 -- "read per-100 g values" --> P3
+  P3 -- "write" --> D3
+  U -- "activity code, minutes" --> P4
+  D7 -- "read MET" --> P4
+  D2 -- "read latest weight" --> P4
+  P4 -- "write" --> D4
+  D2 -- "read" --> P5
+  D3 -- "read" --> P5
+  D4 -- "read" --> P5
+  P5 -- "daily series" --> P6
+  D1 -- "read profile" --> P6
+  P6 -- "forecast + insights" --> U
+  D1 -- "read" --> P7
+  D3 -- "read" --> P7
+  D4 -- "read" --> P7
+  D2 -- "read" --> P7
+  P7 -- "dashboard, coach" --> U
