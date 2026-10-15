@@ -1,0 +1,133 @@
+anonymous_user_id,group,cohort_type,target_date,base_date,model_type,predicted_weight_kg,actual_weight_kg,predicted_delta_kg,actual_delta_kg,weight_error_kg,absolute_error_kg,squared_error_kg2,weight_measured
+User_039,Group D (> 40 days),database_original,2026-09-02,2026-09-01,Personalized LSTM,66.5,66.38,-0.025,-0.15,0.12,0.12,0.0144,True
+User_039,Group D (> 40 days),database_original,2026-09-02,2026-09-01,Persistence Baseline,66.53,66.38,0.0,-0.15,0.15,0.15,0.0225,True
+User_039,Group D (> 40 days),database_original,2026-09-03,2026-09-02,Personalized LSTM,66.36,66.34,-0.022,-0.04,0.02,0.02,0.0004,True
+User_039,Group D (> 40 days),database_original,2026-09-03,2026-09-02,Persistence Baseline,66.38,66.34,0.0,-0.04,0.04,0.04,0.0016,True
+User_039,Group D (> 40 days),database_original,2026-09-04,2026-09-03,Personalized LSTM,66.32,66.42,-0.022,0.08,-0.1,0.1,0.01,True
+User_039,Group D (> 40 days),database_original,2026-09-04,2026-09-03,Persistence Baseline,66.34,66.42,0.0,0.08,-0.08,0.08,0.0064,True
+User_039,Group D (> 40 days),database_original,2026-09-05,2026-09-04,Personalized LSTM,66.38,66.42,-0.037,0.0,-0.04,0.04,0.0016,True
+User_039,Group D (> 40 days),database_original,2026-09-05,2026-09-04,Persistence Baseline,66.42,66.42,0.0,0.0,0.0,0.0,0.0,True
+User_039,Group D (> 40 days),database_original,2026-09-06,2026-09-05,Personalized LSTM,66.43,66.42,0.012,0.0,0.01,0.01,0.0001,True
+User_039,Group D (> 40 days),database_original,2026-09-06,2026-09-05,Persistence Baseline,66.42,66.42,0.0,0.0,0.0,0.0,0.0,True
+User_039,Group D (> 40 days),database_original,2026-09-07,2026-09-06,Personalized LSTM,66.43,66.39,0.012,-0.03,0.04,0.04,0.0016,True
+User_039,Group D (> 40 days),database_original,2026-09-07,2026-09-06,Persistence Baseline,66.42,66.39,0.0,-0.03,0.03,0.03,0.0009,True
+User_039,Group D (> 40 days),database_original,2026-09-08,2026-09-07,Personalized LSTM,66.48,66.33,0.09,-0.06,0.15,0.15,0.0225,True
+User_039,Group D (> 40 days),database_original,2026-09-08,2026-09-07,Persistence Baseline,66.39,66.33,0.0,-0.06,0.06,0.06,0.0036,True
+User_039,Group D (> 40 days),database_original,2026-09-09,2026-09-08,Personalized LSTM,66.31,66.3,-0.017,-0.03,0.01,0.01,0.0001,True
+User_039,Group D (> 40 days),database_original,2026-09-09,2026-09-08,Persistence Baseline,66.33,66.3,0.0,-0.03,0.03,0.03,0.0009,True
+User_039,Group D (> 40 days),database_original,2026-09-10,2026-09-09,Personalized LSTM,66.35,66.32,0.049,0.02,0.03,0.03,0.0009,True
+User_039,Group D (> 40 days),database_original,2026-09-10,2026-09-09,Persistence Baseline,66.3,66.32,0.0,0.02,-0.02,0.02,0.0004,True
+User_039,Group D (> 40 days),database_original,2026-09-11,2026-09-10,Personalized LSTM,66.26,66.23,-0.058,-0.09,0.03,0.03,0.0009,True
+User_039,Group D (> 40 days),database_original,2026-09-11,2026-09-10,Persistence Baseline,66.32,66.23,0.0,-0.09,0.09,0.09,0.0081,True
+User_039,Group D (> 40 days),database_original,2026-09-12,2026-09-11,Personalized LSTM,66.21,66.3,-0.015,0.07,-0.09,0.09,0.0081,True
+User_039,Group D (> 40 days),database_original,2026-09-12,2026-09-11,Persistence Baseline,66.23,66.3,0.0,0.07,-0.07,0.07,0.0049,True
+User_039,Group D (> 40 days),database_original,2026-09-13,2026-09-12,Personalized LSTM,66.25,66.29,-0.051,-0.01,-0.04,0.04,0.0016,True
+User_039,Group D (> 40 days),database_original,2026-09-13,2026-09-12,Persistence Baseline,66.3,66.29,0.0,-0.01,0.01,0.01,0.0001,True
+User_039,Group D (> 40 days),database_original,2026-09-14,2026-09-13,Personalized LSTM,66.25,66.15,-0.035,-0.14,0.1,0.1,0.01,True
+User_039,Group D (> 40 days),database_original,2026-09-14,2026-09-13,Persistence Baseline,66.29,66.15,0.0,-0.14,0.14,0.14,0.0196,True
+User_039,Group D (> 40 days),database_original,2026-09-15,2026-09-14,Personalized LSTM,66.13,66.2,-0.022,0.05,-0.07,0.07,0.0049,True
+User_039,Group D (> 40 days),database_original,2026-09-15,2026-09-14,Persistence Baseline,66.15,66.2,0.0,0.05,-0.05,0.05,0.0025,True
+User_039,Group D (> 40 days),database_original,2026-09-16,2026-09-15,Personalized LSTM,66.17,66.1,-0.03,-0.1,0.07,0.07,0.0049,True
+User_039,Group D (> 40 days),database_original,2026-09-16,2026-09-15,Persistence Baseline,66.2,66.1,0.0,-0.1,0.1,0.1,0.01,True
+User_039,Group D (> 40 days),database_original,2026-09-17,2026-09-16,Personalized LSTM,66.08,66.18,-0.022,0.08,-0.1,0.1,0.01,True
+User_039,Group D (> 40 days),database_original,2026-09-17,2026-09-16,Persistence Baseline,66.1,66.18,0.0,0.08,-0.08,0.08,0.0064,True
+User_039,Group D (> 40 days),database_original,2026-09-18,2026-09-17,Personalized LSTM,66.12,66.21,-0.064,0.03,-0.09,0.09,0.0081,True
+User_039,Group D (> 40 days),database_original,2026-09-18,2026-09-17,Persistence Baseline,66.18,66.21,0.0,0.03,-0.03,0.03,0.0009,True
+User_039,Group D (> 40 days),database_original,2026-09-19,2026-09-18,Personalized LSTM,66.1,66.05,-0.105,-0.16,0.05,0.05,0.0025,True
+User_039,Group D (> 40 days),database_original,2026-09-19,2026-09-18,Persistence Baseline,66.21,66.05,0.0,-0.16,0.16,0.16,0.0256,True
+User_039,Group D (> 40 days),database_original,2026-09-20,2026-09-19,Personalized LSTM,65.99,66.15,-0.061,0.1,-0.16,0.16,0.0256,True
+User_039,Group D (> 40 days),database_original,2026-09-20,2026-09-19,Persistence Baseline,66.05,66.15,0.0,0.1,-0.1,0.1,0.01,True
+User_039,Group D (> 40 days),database_original,2026-09-21,2026-09-20,Personalized LSTM,66.06,66.08,-0.088,-0.07,-0.02,0.02,0.0004,True
+User_039,Group D (> 40 days),database_original,2026-09-21,2026-09-20,Persistence Baseline,66.15,66.08,0.0,-0.07,0.07,0.07,0.0049,True
+User_039,Group D (> 40 days),database_original,2026-09-22,2026-09-21,Personalized LSTM,66.02,66.13,-0.055,0.05,-0.11,0.11,0.0121,True
+User_039,Group D (> 40 days),database_original,2026-09-22,2026-09-21,Persistence Baseline,66.08,66.13,0.0,0.05,-0.05,0.05,0.0025,True
+User_039,Group D (> 40 days),database_original,2026-09-23,2026-09-22,Personalized LSTM,66.04,66.16,-0.088,0.03,-0.12,0.12,0.0144,True
+User_039,Group D (> 40 days),database_original,2026-09-23,2026-09-22,Persistence Baseline,66.13,66.16,0.0,0.03,-0.03,0.03,0.0009,True
+User_039,Group D (> 40 days),database_original,2026-09-24,2026-09-23,Personalized LSTM,66.07,66.05,-0.087,-0.11,0.02,0.02,0.0004,True
+User_039,Group D (> 40 days),database_original,2026-09-24,2026-09-23,Persistence Baseline,66.16,66.05,0.0,-0.11,0.11,0.11,0.0121,True
+User_039,Group D (> 40 days),database_original,2026-09-25,2026-09-24,Personalized LSTM,65.98,65.92,-0.071,-0.13,0.06,0.06,0.0036,True
+User_039,Group D (> 40 days),database_original,2026-09-25,2026-09-24,Persistence Baseline,66.05,65.92,0.0,-0.13,0.13,0.13,0.0169,True
+User_039,Group D (> 40 days),database_original,2026-09-26,2026-09-25,Personalized LSTM,65.89,65.87,-0.03,-0.05,0.02,0.02,0.0004,True
+User_039,Group D (> 40 days),database_original,2026-09-26,2026-09-25,Persistence Baseline,65.92,65.87,0.0,-0.05,0.05,0.05,0.0025,True
+User_039,Group D (> 40 days),database_original,2026-09-27,2026-09-26,Personalized LSTM,65.85,65.82,-0.022,-0.05,0.03,0.03,0.0009,True
+User_039,Group D (> 40 days),database_original,2026-09-27,2026-09-26,Persistence Baseline,65.87,65.82,0.0,-0.05,0.05,0.05,0.0025,True
+User_039,Group D (> 40 days),database_original,2026-09-28,2026-09-27,Personalized LSTM,65.8,65.83,-0.016,0.01,-0.03,0.03,0.0009,True
+User_039,Group D (> 40 days),database_original,2026-09-28,2026-09-27,Persistence Baseline,65.82,65.83,0.0,0.01,-0.01,0.01,0.0001,True
+User_039,Group D (> 40 days),database_original,2026-09-29,2026-09-28,Personalized LSTM,65.81,65.91,-0.022,0.08,-0.1,0.1,0.01,True
+User_039,Group D (> 40 days),database_original,2026-09-29,2026-09-28,Persistence Baseline,65.83,65.91,0.0,0.08,-0.08,0.08,0.0064,True
+User_039,Group D (> 40 days),database_original,2026-09-30,2026-09-29,Personalized LSTM,65.91,65.89,-0.001,-0.02,0.02,0.02,0.0004,True
+User_039,Group D (> 40 days),database_original,2026-09-30,2026-09-29,Persistence Baseline,65.91,65.89,0.0,-0.02,0.02,0.02,0.0004,True
+User_039,Group D (> 40 days),database_original,2026-10-01,2026-09-30,Personalized LSTM,65.87,65.95,-0.022,0.06,-0.08,0.08,0.0064,True
+User_039,Group D (> 40 days),database_original,2026-10-01,2026-09-30,Persistence Baseline,65.89,65.95,0.0,0.06,-0.06,0.06,0.0036,True
+User_039,Group D (> 40 days),database_original,2026-10-02,2026-10-01,Personalized LSTM,65.93,65.89,-0.022,-0.06,0.04,0.04,0.0016,True
+User_039,Group D (> 40 days),database_original,2026-10-02,2026-10-01,Persistence Baseline,65.95,65.89,0.0,-0.06,0.06,0.06,0.0036,True
+User_039,Group D (> 40 days),database_original,2026-10-03,2026-10-02,Personalized LSTM,65.82,65.94,-0.067,0.05,-0.12,0.12,0.0144,True
+User_039,Group D (> 40 days),database_original,2026-10-03,2026-10-02,Persistence Baseline,65.89,65.94,0.0,0.05,-0.05,0.05,0.0025,True
+User_039,Group D (> 40 days),database_original,2026-10-04,2026-10-03,Personalized LSTM,65.85,65.81,-0.094,-0.13,0.04,0.04,0.0016,True
+User_039,Group D (> 40 days),database_original,2026-10-04,2026-10-03,Persistence Baseline,65.94,65.81,0.0,-0.13,0.13,0.13,0.0169,True
+User_039,Group D (> 40 days),database_original,2026-10-05,2026-10-04,Personalized LSTM,65.68,65.96,-0.131,0.15,-0.28,0.28,0.0784,True
+User_039,Group D (> 40 days),database_original,2026-10-05,2026-10-04,Persistence Baseline,65.81,65.96,0.0,0.15,-0.15,0.15,0.0225,True
+User_040,Group B (20-29 days),database_original,2026-09-08,2026-09-07,Personalized LSTM,75.07,75.0,-0.113,-0.18,0.07,0.07,0.0049,True
+User_040,Group B (20-29 days),database_original,2026-09-08,2026-09-07,Persistence Baseline,75.18,75.0,0.0,-0.18,0.18,0.18,0.0324,True
+User_040,Group B (20-29 days),database_original,2026-09-29,2026-09-08,Personalized LSTM,75.17,75.0,0.171,0.0,0.17,0.17,0.0289,False
+User_040,Group B (20-29 days),database_original,2026-09-29,2026-09-08,Persistence Baseline,75.0,75.0,0.0,0.0,0.0,0.0,0.0,False
+User_040,Group B (20-29 days),database_original,2026-10-05,2026-09-29,Personalized LSTM,75.18,75.0,0.185,0.0,0.18,0.18,0.0324,False
+User_040,Group B (20-29 days),database_original,2026-10-05,2026-09-29,Persistence Baseline,75.0,75.0,0.0,0.0,0.0,0.0,0.0,False
+User_041,Group B (20-29 days),database_original,2026-09-08,2026-09-07,Personalized LSTM,55.08,55.0,0.148,0.07,0.08,0.08,0.0064,True
+User_041,Group B (20-29 days),database_original,2026-09-08,2026-09-07,Persistence Baseline,54.93,55.0,0.0,0.07,-0.07,0.07,0.0049,True
+User_041,Group B (20-29 days),database_original,2026-10-02,2026-09-08,Personalized LSTM,54.95,55.0,-0.048,0.0,-0.05,0.05,0.0025,False
+User_041,Group B (20-29 days),database_original,2026-10-02,2026-09-08,Persistence Baseline,55.0,55.0,0.0,0.0,0.0,0.0,0.0,False
+User_041,Group B (20-29 days),database_original,2026-10-05,2026-10-02,Personalized LSTM,54.82,55.0,-0.18,0.0,-0.18,0.18,0.0324,False
+User_041,Group B (20-29 days),database_original,2026-10-05,2026-10-02,Persistence Baseline,55.0,55.0,0.0,0.0,0.0,0.0,0.0,False
+User_043,Group B (20-29 days),database_original,2026-09-27,2026-09-26,Personalized LSTM,79.52,79.3,-0.179,-0.4,0.22,0.22,0.0484,True
+User_043,Group B (20-29 days),database_original,2026-09-27,2026-09-26,Persistence Baseline,79.7,79.3,0.0,-0.4,0.4,0.4,0.16,True
+User_043,Group B (20-29 days),database_original,2026-09-28,2026-09-27,Personalized LSTM,79.15,79.0,-0.15,-0.3,0.15,0.15,0.0225,True
+User_043,Group B (20-29 days),database_original,2026-09-28,2026-09-27,Persistence Baseline,79.3,79.0,0.0,-0.3,0.3,0.3,0.09,True
+User_043,Group B (20-29 days),database_original,2026-09-29,2026-09-28,Personalized LSTM,79.05,78.6,0.054,-0.4,0.45,0.45,0.2025,True
+User_043,Group B (20-29 days),database_original,2026-09-29,2026-09-28,Persistence Baseline,79.0,78.6,0.0,-0.4,0.4,0.4,0.16,True
+User_044,Group A (< 20 days),evaluation_seed,2026-10-03,2026-10-02,Personalized LSTM,73.65,73.76,-0.152,-0.04,-0.11,0.11,0.0121,True
+User_044,Group A (< 20 days),evaluation_seed,2026-10-03,2026-10-02,Persistence Baseline,73.8,73.76,0.0,-0.04,0.04,0.04,0.0016,True
+User_044,Group A (< 20 days),evaluation_seed,2026-10-04,2026-10-03,Personalized LSTM,73.57,73.65,-0.194,-0.11,-0.08,0.08,0.0064,True
+User_044,Group A (< 20 days),evaluation_seed,2026-10-04,2026-10-03,Persistence Baseline,73.76,73.65,0.0,-0.11,0.11,0.11,0.0121,True
+User_044,Group A (< 20 days),evaluation_seed,2026-10-05,2026-10-04,Personalized LSTM,73.46,73.58,-0.187,-0.07,-0.12,0.12,0.0144,True
+User_044,Group A (< 20 days),evaluation_seed,2026-10-05,2026-10-04,Persistence Baseline,73.65,73.58,0.0,-0.07,0.07,0.07,0.0049,True
+User_045,Group C (30-40 days),evaluation_seed,2026-10-01,2026-09-30,Personalized LSTM,64.75,64.92,-0.104,0.07,-0.17,0.17,0.0289,True
+User_045,Group C (30-40 days),evaluation_seed,2026-10-01,2026-09-30,Persistence Baseline,64.85,64.92,0.0,0.07,-0.07,0.07,0.0049,True
+User_045,Group C (30-40 days),evaluation_seed,2026-10-02,2026-10-01,Personalized LSTM,64.73,64.87,-0.191,-0.05,-0.14,0.14,0.0196,True
+User_045,Group C (30-40 days),evaluation_seed,2026-10-02,2026-10-01,Persistence Baseline,64.92,64.87,0.0,-0.05,0.05,0.05,0.0025,True
+User_045,Group C (30-40 days),evaluation_seed,2026-10-03,2026-10-02,Personalized LSTM,64.67,64.89,-0.198,0.02,-0.22,0.22,0.0484,True
+User_045,Group C (30-40 days),evaluation_seed,2026-10-03,2026-10-02,Persistence Baseline,64.87,64.89,0.0,0.02,-0.02,0.02,0.0004,True
+User_045,Group C (30-40 days),evaluation_seed,2026-10-04,2026-10-03,Personalized LSTM,64.69,64.85,-0.199,-0.04,-0.16,0.16,0.0256,True
+User_045,Group C (30-40 days),evaluation_seed,2026-10-04,2026-10-03,Persistence Baseline,64.89,64.85,0.0,-0.04,0.04,0.04,0.0016,True
+User_045,Group C (30-40 days),evaluation_seed,2026-10-05,2026-10-04,Personalized LSTM,64.65,64.84,-0.2,-0.01,-0.19,0.19,0.0361,True
+User_045,Group C (30-40 days),evaluation_seed,2026-10-05,2026-10-04,Persistence Baseline,64.85,64.84,0.0,-0.01,0.01,0.01,0.0001,True
+User_046,Group C (30-40 days),evaluation_seed,2026-09-30,2026-09-29,Personalized LSTM,79.19,79.19,-0.052,-0.05,-0.0,0.0,0.0,True
+User_046,Group C (30-40 days),evaluation_seed,2026-09-30,2026-09-29,Persistence Baseline,79.24,79.19,0.0,-0.05,0.05,0.05,0.0025,True
+User_046,Group C (30-40 days),evaluation_seed,2026-10-01,2026-09-30,Personalized LSTM,79.14,79.06,-0.054,-0.13,0.08,0.08,0.0064,True
+User_046,Group C (30-40 days),evaluation_seed,2026-10-01,2026-09-30,Persistence Baseline,79.19,79.06,0.0,-0.13,0.13,0.13,0.0169,True
+User_046,Group C (30-40 days),evaluation_seed,2026-10-02,2026-10-01,Personalized LSTM,78.88,79.04,-0.18,-0.02,-0.16,0.16,0.0256,True
+User_046,Group C (30-40 days),evaluation_seed,2026-10-02,2026-10-01,Persistence Baseline,79.06,79.04,0.0,-0.02,0.02,0.02,0.0004,True
+User_046,Group C (30-40 days),evaluation_seed,2026-10-03,2026-10-02,Personalized LSTM,78.85,78.81,-0.186,-0.23,0.04,0.04,0.0016,True
+User_046,Group C (30-40 days),evaluation_seed,2026-10-03,2026-10-02,Persistence Baseline,79.04,78.81,0.0,-0.23,0.23,0.23,0.0529,True
+User_046,Group C (30-40 days),evaluation_seed,2026-10-04,2026-10-03,Personalized LSTM,78.63,78.77,-0.179,-0.04,-0.14,0.14,0.0196,True
+User_046,Group C (30-40 days),evaluation_seed,2026-10-04,2026-10-03,Persistence Baseline,78.81,78.77,0.0,-0.04,0.04,0.04,0.0016,True
+User_046,Group C (30-40 days),evaluation_seed,2026-10-05,2026-10-04,Personalized LSTM,78.6,78.57,-0.173,-0.2,0.03,0.03,0.0009,True
+User_046,Group C (30-40 days),evaluation_seed,2026-10-05,2026-10-04,Persistence Baseline,78.77,78.57,0.0,-0.2,0.2,0.2,0.04,True
+User_047,Group D (> 40 days),evaluation_seed,2026-09-27,2026-09-26,Personalized LSTM,66.46,66.6,-0.168,-0.03,-0.14,0.14,0.0196,True
+User_047,Group D (> 40 days),evaluation_seed,2026-09-27,2026-09-26,Persistence Baseline,66.63,66.6,0.0,-0.03,0.03,0.03,0.0009,True
+User_047,Group D (> 40 days),evaluation_seed,2026-09-28,2026-09-27,Personalized LSTM,66.42,66.53,-0.176,-0.07,-0.11,0.11,0.0121,True
+User_047,Group D (> 40 days),evaluation_seed,2026-09-28,2026-09-27,Persistence Baseline,66.6,66.53,0.0,-0.07,0.07,0.07,0.0049,True
+User_047,Group D (> 40 days),evaluation_seed,2026-09-29,2026-09-28,Personalized LSTM,66.36,66.57,-0.168,0.04,-0.21,0.21,0.0441,True
+User_047,Group D (> 40 days),evaluation_seed,2026-09-29,2026-09-28,Persistence Baseline,66.53,66.57,0.0,0.04,-0.04,0.04,0.0016,True
+User_047,Group D (> 40 days),evaluation_seed,2026-09-30,2026-09-29,Personalized LSTM,66.67,66.5,0.1,-0.07,0.17,0.17,0.0289,True
+User_047,Group D (> 40 days),evaluation_seed,2026-09-30,2026-09-29,Persistence Baseline,66.57,66.5,0.0,-0.07,0.07,0.07,0.0049,True
+User_047,Group D (> 40 days),evaluation_seed,2026-10-01,2026-09-30,Personalized LSTM,66.42,66.39,-0.079,-0.11,0.03,0.03,0.0009,True
+User_047,Group D (> 40 days),evaluation_seed,2026-10-01,2026-09-30,Persistence Baseline,66.5,66.39,0.0,-0.11,0.11,0.11,0.0121,True
+User_047,Group D (> 40 days),evaluation_seed,2026-10-02,2026-10-01,Personalized LSTM,66.42,66.33,0.031,-0.06,0.09,0.09,0.0081,True
+User_047,Group D (> 40 days),evaluation_seed,2026-10-02,2026-10-01,Persistence Baseline,66.39,66.33,0.0,-0.06,0.06,0.06,0.0036,True
+User_047,Group D (> 40 days),evaluation_seed,2026-10-03,2026-10-02,Personalized LSTM,66.19,66.24,-0.143,-0.09,-0.05,0.05,0.0025,True
+User_047,Group D (> 40 days),evaluation_seed,2026-10-03,2026-10-02,Persistence Baseline,66.33,66.24,0.0,-0.09,0.09,0.09,0.0081,True
+User_047,Group D (> 40 days),evaluation_seed,2026-10-04,2026-10-03,Personalized LSTM,66.06,66.29,-0.175,0.05,-0.23,0.23,0.0529,True
+User_047,Group D (> 40 days),evaluation_seed,2026-10-04,2026-10-03,Persistence Baseline,66.24,66.29,0.0,0.05,-0.05,0.05,0.0025,True
+User_047,Group D (> 40 days),evaluation_seed,2026-10-05,2026-10-04,Personalized LSTM,66.3,66.39,0.013,0.1,-0.09,0.09,0.0081,True
+User_047,Group D (> 40 days),evaluation_seed,2026-10-05,2026-10-04,Persistence Baseline,66.29,66.39,0.0,0.1,-0.1,0.1,0.01,True

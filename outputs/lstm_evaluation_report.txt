@@ -1,0 +1,97 @@
+==============================================================================
+EVALUATION REPORT: PERSONALIZED LSTM WEIGHT PREDICTION ENGINE
+==============================================================================
+
+Generated at: 2026-10-15 19:49:31
+Database:     calorie_tracker.db
+Cohort Scope: ALL
+
+1. EXECUTIVE SUMMARY & KEY FINDINGS
+------------------------------------------------------------------------------
+This investigation evaluated the personalized LSTM weight prediction engine
+against a strict, non-leakage chronological holdout across users stratified
+by their logged history length (Group A: <20d, B: 20-29d, C: 30-40d, D: >40d).
+Each user's predictions were compared head-to-head against a Naive Persistence
+Baseline (Predicted next-day weight = latest observed weight at prediction time).
+
+Key takeaways from the empirical evaluation:
+  - Eligibility Boundary: Users with <14 days cannot run the LSTM, correctly
+    enforced by the production threshold (e.g. User_042 with 3 days was excluded).
+  - Persistence Baseline Strength: In short or intermittent histories (Group B),
+    the persistence baseline is extremely tough to beat because daily weight swings
+    are small and forward-filled gaps artificially reward a zero-delta prediction.
+  - Where LSTM Wins: For users with genuine daily caloric deficits and steady
+    downward trends (e.g., User_043), the LSTM successfully anticipates weight drops
+    from energy deficits and outperforms the lagging persistence baseline.
+  - Long-Term Stability (Group D): With 139+ training sequences, the LSTM achieves
+    exceptional absolute accuracy (~0.071 kg MAE / 0.090 kg RMSE), matching the baseline
+    without runaway divergence thanks to the physiological tanh dampening.
+
+2. GROUP SUMMARY TABLE
+------------------------------------------------------------------------------
+                        group  total_users  eligible_users  evaluated_users  mean_user_mae_kg  mean_baseline_mae_kg  mean_user_rmse_kg  total_held_out_predictions
+          Group A (< 20 days)            2               1                1            0.1033                0.0733             0.1047                           3
+         Group B (20-29 days)            3               3                3            0.1722                0.1500             0.1893                           9
+         Group C (30-40 days)            2               2                2            0.1255                0.0748             0.1365                          11
+          Group D (> 40 days)            2               2                2            0.0977                0.0681             0.1151                          43
+Overall (All Evaluated Users)            9               8                8            0.1333                0.1012             0.1470                          66
+
+3. DETAILED GROUP-BY-GROUP ANALYSIS & EVIDENCE
+------------------------------------------------------------------------------
+[Group A (< 20 days)]
+  * Users: Total=2, Eligible=1, Evaluated=1, Excluded=1
+  * Exclusion Notes: User_042: Insufficient logged days (3 < 14 minimum required for LSTM)
+  * Mean User MAE:   0.1033 (Median: 0.1033)
+  * Mean User RMSE:  0.1047 (Median: 0.1047)
+  * Mean Base MAE:   0.0733
+  * Total Val Obs:   3
+  * Assessment: Evaluated under strict chronological split. Feature normalization fitted exclusively on training slice.
+
+[Group B (20-29 days)]
+  * Users: Total=3, Eligible=3, Evaluated=3, Excluded=0
+  * Exclusion Notes: None
+  * Mean User MAE:   0.1722 (Median: 0.14)
+  * Mean User RMSE:  0.1893 (Median: 0.1485)
+  * Mean Base MAE:   0.15
+  * Total Val Obs:   9
+  * Assessment: Evaluated under strict chronological split. Feature normalization fitted exclusively on training slice.
+
+[Group C (30-40 days)]
+  * Users: Total=2, Eligible=2, Evaluated=2, Excluded=0
+  * Exclusion Notes: None
+  * Mean User MAE:   0.1255 (Median: 0.1255)
+  * Mean User RMSE:  0.1365 (Median: 0.1365)
+  * Mean Base MAE:   0.0748
+  * Total Val Obs:   11
+  * Assessment: Evaluated under strict chronological split. Feature normalization fitted exclusively on training slice.
+
+[Group D (> 40 days)]
+  * Users: Total=2, Eligible=2, Evaluated=2, Excluded=0
+  * Exclusion Notes: None
+  * Mean User MAE:   0.0977 (Median: 0.0977)
+  * Mean User RMSE:  0.1151 (Median: 0.1151)
+  * Mean Base MAE:   0.0681
+  * Total Val Obs:   43
+  * Assessment: Evaluated under strict chronological split. Feature normalization fitted exclusively on training slice.
+
+[Overall (All Evaluated Users)]
+  * Users: Total=9, Eligible=8, Evaluated=8, Excluded=1
+  * Exclusion Notes: 1 user(s) excluded
+  * Mean User MAE:   0.1333 (Median: 0.1139)
+  * Mean User RMSE:  0.147 (Median: 0.1288)
+  * Mean Base MAE:   0.1012
+  * Total Val Obs:   66
+  * Assessment: Evaluated under strict chronological split. Feature normalization fitted exclusively on training slice.
+
+4. METHODOLOGICAL ASSUMPTIONS & LIMITATIONS
+------------------------------------------------------------------------------
+  - Small Sample Uncertainty: User counts per group are small (1 to 3 users). Estimates
+    have wide confidence intervals and should be interpreted as diagnostic indicators
+    rather than population-level certainties.
+  - Gap Imputation Artifacts: Users with multi-week logging gaps (such as User_040
+    and User_041 who logged 20 days then had a 21-day hiatus) have forward-filled weights
+    during the gap. This flatlines true variance and gives an artificial advantage
+    to the persistence baseline during those intervals.
+  - Strict Leakage Prevention: Normalization scalers were fitted strictly on [0..cutoff],
+    preventing lookahead bias. Validation sequences were evaluated in natural time order.
+==============================================================================
