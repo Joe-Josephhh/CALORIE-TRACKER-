@@ -14,38 +14,47 @@ Scan Food
     </h1>
 
     <p>
-        Upload an image of your food.
+        Upload an image of your food for instant classification using fine-tuned EfficientNet-B0.
     </p>
 
 </div>
 
 
-<div class="card upload-card">
+<!-- Upload Form Card -->
+<div class="card upload-card" id="upload_form_card">
 
     <form
+        id="food_scan_form"
         action="{{ url_for('predict') }}"
         method="POST"
         enctype="multipart/form-data"
     >
 
-        <label for="image">
+        <label for="image_input">
             Select food image
         </label>
 
         <input
             type="file"
-            id="image"
+            id="image_input"
             name="image"
             accept=".jpg,.jpeg,.png,.bmp,.gif,.webp"
             required
         >
 
-        <p class="help-text">
-            Maximum file size: 10 MB
+        <p class="help-text" id="file_help_text">
+            Supported formats: JPG, PNG, WEBP, BMP, GIF &bull; Maximum file size: 10 MB
         </p>
+
+        <!-- Selected Image Preview Container -->
+        <div id="image_preview_box" style="display: none; margin: 15px 0; padding: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; text-align: center;">
+            <img id="image_preview_img" src="#" alt="Selected food preview" style="max-height: 200px; max-width: 100%; border-radius: 6px; object-fit: contain; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+            <div id="image_file_meta" style="margin-top: 8px; font-size: 13px; color: #64748b; font-weight: 500;"></div>
+        </div>
 
         <button
             type="submit"
+            id="predict_submit_btn"
             class="button"
         >
             Predict Food
@@ -54,5 +63,425 @@ Scan Food
     </form>
 
 </div>
+
+<!-- Food Prediction Progress Card (Feature D) -->
+<div id="prediction_progress_container" class="card upload-card prediction-progress-box" style="display: none;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <h3 id="progress_status_title" style="margin: 0; font-size: 17px; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+            <div id="progress_spinner" class="chart-loading-spinner" style="width: 18px; height: 18px; border-width: 2px; margin: 0;"></div>
+            <span id="progress_status_text">Uploading image...</span>
+        </h3>
+        <span id="progress_percentage_text" style="font-weight: 700; color: #2563eb; font-size: 14px;">0%</span>
+    </div>
+
+    <p id="progress_status_desc" style="margin: 0 0 12px; font-size: 13px; color: #64748b;">
+        Transferring your photo to the server...
+    </p>
+
+    <!-- Progress Track & Bar -->
+    <div class="progress-track">
+        <div id="progress_bar_fill" class="progress-bar-inner" style="width: 0%;"></div>
+    </div>
+
+    <!-- Step Indicators List -->
+    <div class="progress-steps-list">
+        <div class="progress-step-item" id="step_upload">
+            <span class="step-icon-circle">1</span>
+            <span>Uploading image</span>
+        </div>
+        <div class="progress-step-item" id="step_process">
+            <span class="step-icon-circle">2</span>
+            <span>Processing image tensor</span>
+        </div>
+        <div class="progress-step-item" id="step_infer">
+            <span class="step-icon-circle">3</span>
+            <span>Generating prediction (EfficientNet-B0)</span>
+        </div>
+        <div class="progress-step-item" id="step_done">
+            <span class="step-icon-circle">4</span>
+            <span>Prediction complete</span>
+        </div>
+    </div>
+</div>
+
+<!-- Prediction Error Container -->
+<div id="prediction_error_box" class="card upload-card" style="display: none; border-left: 5px solid #ef4444;">
+    <div style="display: flex; align-items: flex-start; gap: 12px;">
+        <span style="font-size: 24px;">⚠️</span>
+        <div style="flex: 1;">
+            <h3 style="margin: 0; color: #991b1b; font-size: 16px;">Prediction Failed</h3>
+            <p id="prediction_error_message" style="margin: 4px 0 12px; color: #7f1d1d; font-size: 14px;">
+                Unable to process the image.
+            </p>
+            <button type="button" id="retry_scan_btn" class="button small" style="background: #dc2626; margin: 0;">
+                Try Another Image
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Prediction Results View (Rendered in-place on success) -->
+<div id="prediction_results_container" style="display: none;">
+
+    <!-- Best Guess Card -->
+    <div class="card upload-card" style="border-left: 5px solid #2563eb;">
+        <h2 style="margin-top: 0; font-size: 18px; color: #64748b;">
+            Best Guess
+        </h2>
+
+        <h1 class="best-food" id="best_guess_title" style="margin: 10px 0; color: #1e293b; font-size: 32px;">
+            --
+        </h1>
+
+        <p style="margin: 0 0 16px 0; font-size: 15px;">
+            Confidence:
+            <strong id="best_guess_confidence" style="color: #2563eb; font-size: 18px;">
+                --%
+            </strong>
+        </p>
+
+        <a
+            id="accept_prediction_btn"
+            href="{{ url_for('log_food') }}"
+            class="button"
+            style="background: #2563eb; font-size: 15px; padding: 10px 20px;"
+        >
+            Accept Prediction &amp; Log Food &rarr;
+        </a>
+    </div>
+
+    <!-- Top 5 Predictions -->
+    <div class="card upload-card">
+        <h2 style="margin-top: 0; font-size: 18px; margin-bottom: 15px;">
+            Top 5 Predictions
+        </h2>
+
+        <div id="top_predictions_list"></div>
+    </div>
+
+    <!-- Next Action Options -->
+    <div class="card upload-card">
+        <h2 style="margin-top: 0; font-size: 16px; margin-bottom: 10px;">
+            Other Options
+        </h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+            <button
+                type="button"
+                id="scan_again_btn"
+                class="button secondary"
+                style="margin: 0;"
+            >
+                📷 Scan Another Photo
+            </button>
+            <a
+                href="{{ url_for('foods') }}"
+                class="button secondary"
+                style="margin: 0;"
+            >
+                🔍 Search Food Database
+            </a>
+            <a
+                href="{{ url_for('log_food') }}"
+                class="button secondary"
+                style="margin: 0;"
+            >
+                ✍️ Enter Custom Food
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<!-- JavaScript Upload Progress & Prediction Handling (Feature D) -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const scanForm = document.getElementById("food_scan_form");
+    const imageInput = document.getElementById("image_input");
+    const submitBtn = document.getElementById("predict_submit_btn");
+    const uploadFormCard = document.getElementById("upload_form_card");
+
+    const previewBox = document.getElementById("image_preview_box");
+    const previewImg = document.getElementById("image_preview_img");
+    const fileMeta = document.getElementById("image_file_meta");
+
+    const progressContainer = document.getElementById("prediction_progress_container");
+    const statusText = document.getElementById("progress_status_text");
+    const statusDesc = document.getElementById("progress_status_desc");
+    const percentageText = document.getElementById("progress_percentage_text");
+    const progressBarFill = document.getElementById("progress_bar_fill");
+    const spinner = document.getElementById("progress_spinner");
+
+    const stepUpload = document.getElementById("step_upload");
+    const stepProcess = document.getElementById("step_process");
+    const stepInfer = document.getElementById("step_infer");
+    const stepDone = document.getElementById("step_done");
+
+    const errorBox = document.getElementById("prediction_error_box");
+    const errorMsg = document.getElementById("prediction_error_message");
+    const retryBtn = document.getElementById("retry_scan_btn");
+
+    const resultsContainer = document.getElementById("prediction_results_container");
+    const bestGuessTitle = document.getElementById("best_guess_title");
+    const bestGuessConf = document.getElementById("best_guess_confidence");
+    const acceptBtn = document.getElementById("accept_prediction_btn");
+    const topPredictionsList = document.getElementById("top_predictions_list");
+    const scanAgainBtn = document.getElementById("scan_again_btn");
+
+    // Client-side instant preview upon selecting image
+    imageInput.addEventListener("change", function () {
+        const file = this.files[0];
+        if (!file) {
+            previewBox.style.display = "none";
+            return;
+        }
+
+        // Validate file size (10 MB max)
+        const maxBytes = 10 * 1024 * 1024;
+        if (file.size > maxBytes) {
+            alert("⚠️ Selected file exceeds 10 MB limit. Please select a smaller photo.");
+            this.value = "";
+            previewBox.style.display = "none";
+            return;
+        }
+
+        const sizeKb = (file.size / 1024).toFixed(1);
+        fileMeta.textContent = `${file.name} (${sizeKb} KB)`;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            previewImg.src = e.target.result;
+            previewBox.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+    });
+
+    function setStepState(stepEl, state) {
+        stepEl.classList.remove("active", "completed");
+        const icon = stepEl.querySelector(".step-icon-circle");
+        if (state === "completed") {
+            stepEl.classList.add("completed");
+            icon.textContent = "✓";
+        } else if (state === "active") {
+            stepEl.classList.add("active");
+        }
+    }
+
+    function resetToUploadForm() {
+        errorBox.style.display = "none";
+        progressContainer.style.display = "none";
+        resultsContainer.style.display = "none";
+        uploadFormCard.style.display = "block";
+
+        imageInput.disabled = false;
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Predict Food";
+
+        progressBarFill.classList.remove("indeterminate");
+        progressBarFill.style.width = "0%";
+    }
+
+    if (retryBtn) {
+        retryBtn.addEventListener("click", resetToUploadForm);
+    }
+
+    if (scanAgainBtn) {
+        scanAgainBtn.addEventListener("click", () => {
+            imageInput.value = "";
+            previewBox.style.display = "none";
+            resetToUploadForm();
+        });
+    }
+
+    // Intercept form submission with asynchronous XMLHttpRequest for genuine upload progress tracking
+    scanForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const file = imageInput.files[0];
+        if (!file) {
+            alert("Please select an image file first.");
+            return;
+        }
+
+        // Disable submit button to prevent duplicate submissions
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Analyzing...";
+        imageInput.disabled = true;
+
+        errorBox.style.display = "none";
+        resultsContainer.style.display = "none";
+        progressContainer.style.display = "block";
+
+        // Reset progress steps
+        setStepState(stepUpload, "active");
+        setStepState(stepProcess, "");
+        setStepState(stepInfer, "");
+        setStepState(stepDone, "");
+
+        statusText.textContent = "Uploading image...";
+        statusDesc.textContent = `Uploading ${file.name} (${(file.size / 1024).toFixed(0)} KB) to server...`;
+        percentageText.textContent = "0%";
+        progressBarFill.classList.remove("indeterminate");
+        progressBarFill.style.width = "0%";
+
+        const formData = new FormData(scanForm);
+        const xhr = new XMLHttpRequest();
+
+        // 1. Genuine upload progress tracking
+        xhr.upload.onprogress = function (event) {
+            if (event.lengthComputable) {
+                const percentComplete = Math.round((event.loaded / event.total) * 100);
+                progressBarFill.style.width = percentComplete + "%";
+                percentageText.textContent = percentComplete + "%";
+
+                if (percentComplete >= 100) {
+                    // Upload completed! Move truthfully to Python processing state
+                    setStepState(stepUpload, "completed");
+                    setStepState(stepProcess, "active");
+                    statusText.textContent = "Processing image...";
+                    statusDesc.textContent = "Decoding tensor and preparing for model evaluation...";
+                    percentageText.textContent = "Processing";
+                    progressBarFill.classList.add("indeterminate");
+
+                    // Brief transition to inference step while awaiting server response
+                    setTimeout(() => {
+                        if (xhr.readyState < 4) {
+                            setStepState(stepProcess, "completed");
+                            setStepState(stepInfer, "active");
+                            statusText.textContent = "Generating prediction...";
+                            statusDesc.textContent = "Running fine-tuned EfficientNet-B0 inference on Python backend...";
+                            percentageText.textContent = "Classifying";
+                        }
+                    }, 400);
+                }
+            }
+        };
+
+        // 2. Response received from backend
+        xhr.onload = function () {
+            progressBarFill.classList.remove("indeterminate");
+
+            if (xhr.status >= 200 && xhr.status < 300) {
+                let data = null;
+                try {
+                    data = JSON.parse(xhr.responseText);
+                } catch (parseErr) {
+                    console.error("JSON parse error:", parseErr);
+                }
+
+                if (data && data.success && data.predictions) {
+                    // Mark progress completed
+                    setStepState(stepProcess, "completed");
+                    setStepState(stepInfer, "completed");
+                    setStepState(stepDone, "completed");
+                    progressBarFill.style.width = "100%";
+                    percentageText.textContent = "100%";
+                    statusText.textContent = "Prediction complete!";
+                    statusDesc.textContent = "Model successfully classified food dish.";
+
+                    // Smooth transition to results display
+                    setTimeout(() => {
+                        displayPredictionResults(data);
+                    }, 350);
+                    return;
+                }
+            }
+
+            // Failure handling
+            handleFailure(xhr);
+        };
+
+        // 3. Network or connection failure
+        xhr.onerror = function () {
+            handleFailure(xhr, "Network error occurred. Could not reach server. Please check your connection.");
+        };
+
+        xhr.ontimeout = function () {
+            handleFailure(xhr, "Request timed out while waiting for model inference. Please try again.");
+        };
+
+        xhr.open("POST", "{{ url_for('predict') }}", true);
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhr.setRequestHeader("Accept", "application/json");
+        xhr.send(formData);
+    });
+
+    function handleFailure(xhr, customMsg) {
+        progressContainer.style.display = "none";
+        let message = customMsg || "Unable to process the image. Please try another image.";
+
+        try {
+            if (xhr.responseText) {
+                const parsed = JSON.parse(xhr.responseText);
+                if (parsed.error) message = parsed.error;
+            }
+        } catch (_) {}
+
+        errorMsg.textContent = message;
+        errorBox.style.display = "block";
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Predict Food";
+        imageInput.disabled = false;
+    }
+
+    function displayPredictionResults(data) {
+        progressContainer.style.display = "none";
+        uploadFormCard.style.display = "none";
+
+        const best = data.best_prediction || (data.predictions && data.predictions[0]);
+        if (best) {
+            bestGuessTitle.textContent = best.food;
+            bestGuessConf.textContent = Number(best.confidence).toFixed(2) + "%";
+            acceptBtn.href = data.accept_url || `/log-food?food=${encodeURIComponent(best.food)}`;
+        }
+
+        // Render Top 5 Predictions with confidence bars safely
+        topPredictionsList.textContent = "";
+
+        (data.predictions || []).forEach(pred => {
+            const row = document.createElement("div");
+            row.className = "prediction-row";
+            row.style.flexDirection = "column";
+            row.style.gap = "4px";
+
+            const topLine = document.createElement("div");
+            topLine.style.display = "flex";
+            topLine.style.justifyContent = "space-between";
+            topLine.style.alignItems = "center";
+
+            const nameStrong = document.createElement("strong");
+            nameStrong.textContent = `${pred.rank}. ${pred.food}`;
+            topLine.appendChild(nameStrong);
+
+            const confSpan = document.createElement("span");
+            confSpan.style.fontWeight = "600";
+            confSpan.style.color = pred.rank === 1 ? "#2563eb" : "#64748b";
+            confSpan.textContent = `${Number(pred.confidence).toFixed(2)}%`;
+            topLine.appendChild(confSpan);
+
+            // Visual confidence bar
+            const barBg = document.createElement("div");
+            barBg.className = "confidence-bar-bg";
+
+            const barFill = document.createElement("div");
+            barFill.className = "confidence-bar-fill";
+            barFill.style.width = `${Math.min(100, Math.max(0, pred.confidence))}%`;
+            if (pred.rank === 1) {
+                barFill.style.background = "#2563eb";
+            } else {
+                barFill.style.background = "#94a3b8";
+            }
+
+            barBg.appendChild(barFill);
+
+            row.appendChild(topLine);
+            row.appendChild(barBg);
+            topPredictionsList.appendChild(row);
+        });
+
+        resultsContainer.style.display = "block";
+        resultsContainer.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+});
+</script>
 
 {% endblock %}

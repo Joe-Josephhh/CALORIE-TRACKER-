@@ -19,8 +19,46 @@ Log Food
 
 </div>
 
+<!-- Live Today's Intake Running Summary Grid (Feature A) -->
+<div class="summary-grid" style="margin-bottom: 22px;">
+    <div class="summary-card" style="border-top: 4px solid #2563eb;">
+        <span>Today's Calories</span>
+        <strong id="live_today_calories" style="color: #2563eb;">
+            {{ "%.1f"|format(today_totals.get("Calories (kcal)", 0)) }}
+        </strong>
+        <small>kcal consumed</small>
+    </div>
+
+    <div class="summary-card" style="border-top: 4px solid #10b981;">
+        <span>Protein</span>
+        <strong id="live_today_protein" style="color: #059669;">
+            {{ "%.1f"|format(today_totals.get("Protein (g)", 0)) }}
+        </strong>
+        <small>grams</small>
+    </div>
+
+    <div class="summary-card" style="border-top: 4px solid #f59e0b;">
+        <span>Carbohydrates</span>
+        <strong id="live_today_carbs" style="color: #d97706;">
+            {{ "%.1f"|format(today_totals.get("Carbohydrates (g)", 0)) }}
+        </strong>
+        <small>grams</small>
+    </div>
+
+    <div class="summary-card" style="border-top: 4px solid #8b5cf6;">
+        <span>Fats</span>
+        <strong id="live_today_fats" style="color: #7c3aed;">
+            {{ "%.1f"|format(today_totals.get("Fats (g)", 0)) }}
+        </strong>
+        <small>grams</small>
+    </div>
+</div>
+
+<!-- Asynchronous Notification Alert Container -->
+<div id="async_log_alert" class="alert" style="display: none; margin-bottom: 20px;"></div>
 
 <form
+    id="food_log_form"
     action="{{ url_for('log_food') }}"
     method="POST"
     class="card"
@@ -350,6 +388,7 @@ Log Food
 
     <button
         type="submit"
+        id="submit_log_btn"
         class="button"
     >
         Add to Diary
@@ -357,194 +396,56 @@ Log Food
 
 </form>
 
+<!-- Today's Logged Meals (Feature A) -->
+<div class="card" style="margin-top: 25px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+        <div>
+            <h2 style="margin: 0; font-size: 18px;">
+                🍛 Today's Logged Meals (<span id="today_meals_count">{{ today_entries|length }}</span>)
+            </h2>
+            <small style="color: #64748b;">Instant records for {{ today }}</small>
+        </div>
+        <a href="{{ url_for('diary') }}" style="font-size: 13px; color: #2563eb; text-decoration: underline; font-weight: 600;">
+            View Full Day Diary &rarr;
+        </a>
+    </div>
+
+    <div id="today_meals_list">
+        {% if today_entries %}
+            {% for entry in today_entries %}
+            <div class="diary-entry" id="entry-{{ entry.id }}">
+                <div>
+                    <strong style="color: #1e293b; font-size: 15px;">{{ entry.dish_name }}</strong>
+                    <p style="margin: 2px 0 0; color: #64748b; font-size: 13px;">
+                        {{ entry.time }} &bull; {{ entry.meal_type|capitalize }} &bull; {{ entry.weight }} g
+                        {% if entry.notes %} &bull; <em>{{ entry.notes }}</em>{% endif %}
+                    </p>
+                </div>
+                <div style="text-align: right; min-width: 90px;">
+                    <strong style="color: #2563eb; font-size: 15px;">
+                        {{ "%.1f"|format(entry.nutrition["Calories (kcal)"]) }} kcal
+                    </strong>
+                    <small style="display: block; color: #64748b; font-size: 12px;">
+                        P: {{ "%.1f"|format(entry.nutrition["Protein (g)"]) }}g &bull;
+                        C: {{ "%.1f"|format(entry.nutrition["Carbohydrates (g)"]) }}g &bull;
+                        F: {{ "%.1f"|format(entry.nutrition["Fats (g)"]) }}g
+                    </small>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p id="empty_meals_msg" style="color: #94a3b8; font-style: italic; margin: 10px 0;">
+                No food logged yet today. Use the form above to add your first meal!
+            </p>
+        {% endif %}
+    </div>
+</div>
+
 
 <script>
-
-// General presets embedded from backend
-const GENERAL_PRESETS = {{ general_presets|tojson }};
-
-function setWeight() {
-    const select = document.getElementById("weight");
-    const input = document.getElementById("weight_input");
-
-    if (select.value !== "custom" && select.value !== "") {
-        input.value = select.value;
-    }
-}
-
-function toggleCustomNutrition() {
-    const checkbox = document.getElementById("custom_food");
-    const section = document.getElementById("custom-nutrition");
-
-    if (checkbox.checked) {
-        section.style.display = "block";
-    } else {
-        section.style.display = "none";
-    }
-}
-
-function openCustomWithPresets() {
-    const checkbox = document.getElementById("custom_food");
-    const section = document.getElementById("custom-nutrition");
-    checkbox.checked = true;
-    section.style.display = "block";
-
-    const filterInput = document.getElementById("preset_search_input");
-    if (filterInput) {
-        filterInput.focus();
-        filterInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-}
-
-function applyPreset(btn) {
-    const name = btn.dataset.name;
-    const calories = btn.dataset.calories;
-    const protein = btn.dataset.protein;
-    const carbs = btn.dataset.carbs;
-    const fats = btn.dataset.fats;
-    const fibre = btn.dataset.fibre;
-
-    // Set food name
-    document.getElementById("dish_name").value = name;
-
-    // Ensure custom checkbox is checked and custom nutrition is visible
-    const checkbox = document.getElementById("custom_food");
-    checkbox.checked = true;
-    document.getElementById("custom-nutrition").style.display = "block";
-
-    // Populate macro values
-    document.getElementById("custom_calories").value = calories;
-    document.getElementById("custom_protein").value = protein;
-    document.getElementById("custom_carbs").value = carbs;
-    document.getElementById("custom_fats").value = fats;
-    document.getElementById("custom_fibre").value = fibre;
-
-    // Reset optional micronutrients
-    document.getElementById("custom_free_sugar").value = "0";
-    document.getElementById("custom_sodium").value = "0";
-    document.getElementById("custom_calcium").value = "0";
-    document.getElementById("custom_iron").value = "0";
-    document.getElementById("custom_vitamin_c").value = "0";
-    document.getElementById("custom_folate").value = "0";
-
-    // Highlight active chip
-    document.querySelectorAll(".preset-chip-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-
-    // Show alert banner
-    const alertBox = document.getElementById("preset_applied_alert");
-    document.getElementById("applied_preset_name").textContent = name;
-    document.getElementById("applied_preset_summary").textContent = 
-        `${calories} kcal | ${protein}g P | ${carbs}g C | ${fats}g F | ${fibre}g Fibre`;
-    alertBox.style.display = "flex";
-
-    // Close any open food autocomplete suggestions
-    closeSuggestions();
-}
-
-function applyPresetByName(presetName) {
-    if (!presetName) return false;
-    const match = GENERAL_PRESETS.find(p => p.name.toLowerCase() === presetName.trim().toLowerCase());
-    if (match) {
-        const btn = document.querySelector(`.preset-chip-btn[data-name="${match.name}"]`);
-        if (btn) {
-            applyPreset(btn);
-            return true;
-        } else {
-            // Apply directly from object
-            document.getElementById("dish_name").value = match.name;
-            document.getElementById("custom_food").checked = true;
-            document.getElementById("custom-nutrition").style.display = "block";
-            document.getElementById("custom_calories").value = match.calories;
-            document.getElementById("custom_protein").value = match.protein;
-            document.getElementById("custom_carbs").value = match.carbohydrates;
-            document.getElementById("custom_fats").value = match.fats;
-            document.getElementById("custom_fibre").value = match.fibre;
-
-            const alertBox = document.getElementById("preset_applied_alert");
-            document.getElementById("applied_preset_name").textContent = match.name;
-            document.getElementById("applied_preset_summary").textContent = 
-                `${match.calories} kcal | ${match.protein}g P | ${match.carbohydrates}g C | ${match.fats}g F | ${match.fibre}g Fibre`;
-            alertBox.style.display = "flex";
-            return true;
-        }
-    }
-    return false;
-}
-
-function dismissPresetAlert() {
-    document.getElementById("preset_applied_alert").style.display = "none";
-}
-
-function filterPresetChips(query) {
-    const term = query.trim().toLowerCase();
-    const buttons = document.querySelectorAll(".preset-chip-btn");
-
-    buttons.forEach(btn => {
-        const name = (btn.dataset.name || "").toLowerCase();
-        if (!term || name.includes(term)) {
-            btn.style.display = "inline-flex";
-        } else {
-            btn.style.display = "none";
-        }
-    });
-}
-
-// Autocomplete dropdown on Food Name input
-function handleFoodInput(val) {
-    const term = (val || "").trim().toLowerCase();
-    const box = document.getElementById("food_suggestions");
-
-    if (!term || term.length < 1) {
-        box.style.display = "none";
-        box.innerHTML = "";
-        return;
-    }
-
-    const matches = GENERAL_PRESETS.filter(p => p.name.toLowerCase().includes(term)).slice(0, 6);
-
-    if (matches.length === 0) {
-        box.style.display = "none";
-        box.innerHTML = "";
-        return;
-    }
-
-    let html = "";
-    matches.forEach(p => {
-        html += `
-            <div class="food-suggestion-item" onclick="applyPresetByName('${p.name.replace(/'/g, "\\'")}')">
-                <span class="food-suggestion-name">⚡ ${p.name}</span>
-                <span class="food-suggestion-meta">${Math.round(p.calories)} kcal · ${p.protein}g P · ${p.carbohydrates}g C</span>
-            </div>
-        `;
-    });
-
-    box.innerHTML = html;
-    box.style.display = "block";
-}
-
-function closeSuggestions() {
-    const box = document.getElementById("food_suggestions");
-    if (box) {
-        box.style.display = "none";
-    }
-}
-
-// Close suggestions on outside click
-document.addEventListener("click", function(e) {
-    if (!e.target.closest(".food-input-wrapper")) {
-        closeSuggestions();
-    }
-});
-
-// Auto-select on initial page load if matching food is passed in URL query
-document.addEventListener("DOMContentLoaded", function() {
-    const initialFood = document.getElementById("dish_name").value;
-    if (initialFood) {
-        applyPresetByName(initialFood);
-    }
-});
-
+    window.GENERAL_PRESETS = {{ general_presets|tojson }};
+    window.LOG_FOOD_URL = "{{ url_for('log_food') }}";
 </script>
+<script src="{{ url_for('static', filename='js/log_food.js') }}"></script>
 
 {% endblock %}

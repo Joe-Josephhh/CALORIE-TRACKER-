@@ -41,6 +41,7 @@ from services.nutrition_service import (
     search_foods,
     get_all_foods,
     get_nutrition,
+    get_nutrition_per_100g,
     get_general_foods_presets
 )
 
@@ -434,92 +435,65 @@ def food_scan():
 @login_required
 def predict():
 
-    if "image" not in request.files:
+    is_async = (
+        request.headers.get("X-Requested-With") == "XMLHttpRequest"
+        or "application/json" in request.headers.get("Accept", "")
+        or request.is_json
+    )
 
-        flash(
-            "Please select an image.",
-            "error"
-        )
+    def send_error(message, status_code=400):
+        if is_async:
+            return jsonify({
+                "success": False,
+                "error": message
+            }), status_code
+        flash(message, "error")
+        return redirect(url_for("food_scan"))
 
-        return redirect(
-            url_for("food_scan")
-        )
+    file_key = "image" if "image" in request.files else ("food_image" if "food_image" in request.files else None)
+    if not file_key:
+        return send_error("Please select an image.")
 
-    image = request.files["image"]
+    image = request.files[file_key]
 
     if image.filename == "":
+        return send_error("No image selected.")
 
-        flash(
-            "No image selected.",
-            "error"
-        )
+    if not allowed_file(image.filename):
+        return send_error("Unsupported image format. Allowed formats: JPG, PNG, WEBP, BMP, GIF.")
 
-        return redirect(
-            url_for("food_scan")
-        )
-
-    if not allowed_file(
-        image.filename
-    ):
-
-        flash(
-            "Unsupported image format.",
-            "error"
-        )
-
-        return redirect(
-            url_for("food_scan")
-        )
-
-    filename = secure_filename(
-        image.filename
-    )
+    filename = secure_filename(image.filename)
 
     # Prevent filename collisions
-    timestamp = datetime.now().strftime(
-        "%Y%m%d%H%M%S%f"
-    )
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S%f")
+    filename = f"{timestamp}_{filename}"
 
-    filename = (
-        timestamp
-        + "_"
-        + filename
-    )
-
-    image_path = (
-        UPLOAD_FOLDER
-        / filename
-    )
+    image_path = UPLOAD_FOLDER / filename
 
     try:
-
-        image.save(
-            image_path
-        )
-
-        predictions = predict_food(
-            image_path
-        )
-
+        image.save(image_path)
+        predictions = predict_food(image_path)
     except Exception as error:
-
-        print(
-            f"Prediction error: {error}"
-        )
-
+        print(f"Prediction error: {error}")
         if image_path.exists():
-
             image_path.unlink()
+        return send_error("Unable to process the image. Please try another image.", 500)
 
-        flash(
-            "Unable to process the image. "
-            "Please try another image.",
-            "error"
-        )
+    for p in predictions:
+        p["class_name"] = p.get("food")
+        p["confidence_score"] = p.get("confidence")
 
-        return redirect(
-            url_for("food_scan")
-        )
+    if is_async:
+        best_prediction = predictions[0] if predictions else None
+        target_log_url = url_for("log_food", food=best_prediction["food"]) if best_prediction else url_for("log_food")
+        return jsonify({
+            "success": True,
+            "predictions": predictions,
+            "best_prediction": best_prediction,
+            "image_filename": filename,
+            "accept_url": target_log_url,
+            "log_url": target_log_url
+        })
 
     return render_template(
         "prediction_result.html",
@@ -539,103 +513,81 @@ def predict():
 @login_required
 def log_food():
 
+    user_id = session.get("user_id")
+    today = datetime.now().strftime("%Y-%m-%d")
+
     if request.method == "GET":
 
         selected_food = request.args.get(
             "food",
             ""
         )
+        today_entries = get_diary_by_date_user(user_id, today) if user_id else []
+        today_totals = calculate_totals(today_entries)
 
         return render_template(
             "log_food.html",
             selected_food=selected_food,
             preset_weights=PRESET_WEIGHTS,
             meal_types=MEAL_TYPES,
-            general_presets=get_general_foods_presets()
+            general_presets=get_general_foods_presets(),
+            today_entries=today_entries,
+            today_totals=today_totals,
+            today=today
         )
 
     # ---------------------------------------------
     # POST
     # ---------------------------------------------
 
-    dish_name = request.form.get(
-        "dish_name",
-        ""
-    ).strip()
-
-    weight = request.form.get(
-        "weight",
-        ""
-    ).strip()
-
-    meal_type = request.form.get(
-        "meal_type",
-        "other"
-    ).strip().lower()
-
-    notes = request.form.get(
-        "notes",
-        ""
-    ).strip()
-
-    is_custom = (
-        request.form.get(
-            "is_custom"
-        )
-        == "yes"
+    is_async = (
+        request.is_json
+        or request.headers.get("X-Requested-With") == "XMLHttpRequest"
+        or "application/json" in request.headers.get("Accept", "")
     )
+
+    def send_error(message, status_code=400):
+        if is_async:
+            return jsonify({
+                "success": False,
+                "error": message
+            }), status_code
+        flash(message, "error")
+        return redirect(
+            url_for("log_food", food=dish_name) if dish_name else url_for("log_food")
+        )
+
+    json_data = request.get_json(silent=True) if request.is_json else None
+
+    if json_data:
+        dish_name = str(json_data.get("dish_name") or json_data.get("food_name") or "").strip()
+        weight = str(json_data.get("weight") or json_data.get("serving_weight_grams") or "").strip()
+        meal_type = str(json_data.get("meal_type", "other")).strip().lower()
+        notes = str(json_data.get("notes", "")).strip()
+        is_custom = json_data.get("is_custom") in [True, "yes", "true", 1]
+    else:
+        dish_name = (request.form.get("dish_name") or request.form.get("food_name") or "").strip()
+        weight = (request.form.get("weight") or request.form.get("serving_weight_grams") or "").strip()
+        meal_type = request.form.get("meal_type", "other").strip().lower()
+        notes = request.form.get("notes", "").strip()
+        is_custom = (request.form.get("is_custom") == "yes")
 
     # ---------------------------------------------
     # Validate
     # ---------------------------------------------
 
     if not dish_name:
-
-        flash(
-            "Food name is required.",
-            "error"
-        )
-
-        return redirect(
-            url_for("log_food")
-        )
+        return send_error("Food name is required.")
 
     try:
-
-        weight_value = float(
-            weight
-        )
-
-    except ValueError:
-
-        flash(
-            "Invalid weight.",
-            "error"
-        )
-
-        return redirect(
-            url_for(
-                "log_food",
-                food=dish_name
-            )
-        )
+        weight_value = float(weight)
+    except (ValueError, TypeError):
+        return send_error("Invalid weight.")
 
     if weight_value <= 0:
-
-        flash(
-            "Weight must be greater than 0.",
-            "error"
-        )
-
-        return redirect(
-            url_for(
-                "log_food",
-                food=dish_name
-            )
-        )
+        return send_error("Weight must be greater than 0.")
 
     if meal_type not in MEAL_TYPES:
-
         meal_type = "other"
 
     # ---------------------------------------------
@@ -647,83 +599,44 @@ def log_food():
     if is_custom:
 
         nutrition_fields = {
-
-            "Calories (kcal)":
-                "calories",
-
-            "Protein (g)":
-                "protein",
-
-            "Carbohydrates (g)":
-                "carbohydrates",
-
-            "Fats (g)":
-                "fats",
-
-            "Free Sugar (g)":
-                "free_sugar",
-
-            "Fibre (g)":
-                "fibre",
-
-            "Sodium (mg)":
-                "sodium",
-
-            "Calcium (mg)":
-                "calcium",
-
-            "Iron (mg)":
-                "iron",
-
-            "Vitamin C (mg)":
-                "vitamin_c",
-
-            "Folate (µg)":
-                "folate"
+            "Calories (kcal)": "calories",
+            "Protein (g)": "protein",
+            "Carbohydrates (g)": "carbohydrates",
+            "Fats (g)": "fats",
+            "Free Sugar (g)": "free_sugar",
+            "Fibre (g)": "fibre",
+            "Sodium (mg)": "sodium",
+            "Calcium (mg)": "calcium",
+            "Iron (mg)": "iron",
+            "Vitamin C (mg)": "vitamin_c",
+            "Folate (µg)": "folate"
         }
 
         custom_nutrition = {}
 
         try:
+            for nutrient, form_name in nutrition_fields.items():
+                if json_data and isinstance(json_data.get("custom_nutrition"), dict):
+                    raw_value = json_data["custom_nutrition"].get(
+                        form_name,
+                        json_data["custom_nutrition"].get(nutrient, "0")
+                    )
+                elif json_data:
+                    raw_value = json_data.get(form_name, "0")
+                else:
+                    raw_value = request.form.get(form_name, "0").strip()
 
-            for nutrient, form_name in (
-                nutrition_fields.items()
-            ):
-
-                raw_value = request.form.get(
-                    form_name,
-                    "0"
-                ).strip()
-
-                if raw_value == "":
-
+                if raw_value == "" or raw_value is None:
                     raw_value = "0"
 
-                custom_nutrition[
-                    nutrient
-                ] = float(
-                    raw_value
-                )
+                custom_nutrition[nutrient] = float(raw_value)
 
-        except ValueError:
-
-            flash(
-                "Custom nutrition values must be numbers.",
-                "error"
-            )
-
-            return redirect(
-                url_for(
-                    "log_food",
-                    food=dish_name
-                )
-            )
+        except (ValueError, TypeError):
+            return send_error("Custom nutrition values must be numbers.")
 
     # ---------------------------------------------
     # Save food
     # ---------------------------------------------
-
-    user_id = session.get("user_id")
 
     result = add_food(
         user_id=user_id,
@@ -735,18 +648,31 @@ def log_food():
     )
 
     if not result["success"]:
+        return send_error(result["error"])
 
-        flash(
-            result["error"],
-            "error"
-        )
+    if is_async:
+        today_entries = get_diary_by_date_user(user_id, today)
+        today_totals = calculate_totals(today_entries)
+        # Macro aliases for JSON clients
+        today_totals["calories"] = today_totals.get("Calories (kcal)", 0.0)
+        today_totals["protein"] = today_totals.get("Protein (g)", 0.0)
+        today_totals["carbohydrates"] = today_totals.get("Carbohydrates (g)", 0.0)
+        today_totals["fats"] = today_totals.get("Fats (g)", 0.0)
 
-        return redirect(
-            url_for(
-                "log_food",
-                food=dish_name
-            )
-        )
+        entry_data = dict(result.get("entry") or {})
+        if entry_data:
+            entry_data["food_name"] = entry_data.get("dish_name", dish_name)
+            entry_data["serving_weight_grams"] = entry_data.get("weight", weight_value)
+
+        coach = get_daily_calorie_coach(user_id, today)
+        return jsonify({
+            "success": True,
+            "message": f"{dish_name} ({weight_value}g) added to your diary.",
+            "entry": entry_data,
+            "totals": today_totals,
+            "today_entries": today_entries,
+            "coach": coach
+        })
 
     flash(
         f"{dish_name} ({weight_value}g) added to your diary.",
@@ -946,18 +872,136 @@ def foods():
 @app.route("/api/foods")
 def api_foods():
 
-    query = request.args.get(
-        "q",
-        ""
-    ).strip()
+    query = request.args.get("q", "").strip()
+    limit = request.args.get("limit", default=40, type=int)
 
-    foods = search_foods(
-        query
-    )
+    matching_names = search_foods(query)
 
-    return {
-        "foods": foods
-    }
+    limited_names = matching_names[:limit] if limit > 0 else matching_names
+
+    foods_detailed = []
+    for name in limited_names:
+        nutr = get_nutrition_per_100g(name) or {}
+        foods_detailed.append({
+            "name": name,
+            "calories": round(float(nutr.get("Calories (kcal)", 0) or 0), 1),
+            "protein": round(float(nutr.get("Protein (g)", 0) or 0), 1),
+            "carbohydrates": round(float(nutr.get("Carbohydrates (g)", 0) or 0), 1),
+            "fats": round(float(nutr.get("Fats (g)", 0) or 0), 1),
+            "fibre": round(float(nutr.get("Fibre (g)", 0) or 0), 1)
+        })
+
+    return jsonify({
+        "success": True,
+        "query": query,
+        "count": len(matching_names),
+        "foods": foods_detailed,
+        "food_names": matching_names
+    })
+
+
+# =========================================================
+# API DYNAMIC HISTORY & TRENDS
+# =========================================================
+
+@app.route("/api/history")
+@login_required
+def api_history():
+    """
+    Returns daily history and trends (Calories In, Out, Net, Weight) as JSON
+    to dynamically update charts and summary metrics without full page reload.
+    """
+    user_id = session.get("user_id")
+    start_date = request.args.get("start_date", "").strip()
+    end_date = request.args.get("end_date", "").strip()
+
+    today = datetime.now()
+    if not start_date and not end_date:
+        end_date = today.strftime("%Y-%m-%d")
+        start_date = (today - timedelta(days=14)).strftime("%Y-%m-%d")
+    elif not start_date:
+        start_date = (today - timedelta(days=14)).strftime("%Y-%m-%d")
+    elif not end_date:
+        end_date = today.strftime("%Y-%m-%d")
+
+    try:
+        start = datetime.strptime(start_date, "%Y-%m-%d")
+        end = datetime.strptime(end_date, "%Y-%m-%d")
+    except ValueError:
+        return jsonify({
+            "success": False,
+            "error": "Please enter valid dates (YYYY-MM-DD)."
+        }), 400
+
+    if start > end:
+        return jsonify({
+            "success": False,
+            "error": "Start date must be before or equal to end date."
+        }), 400
+
+    daily_history = get_user_history_daily(user_id, start_date, end_date, order="ASC")
+    entries = get_diary_range_user(user_id, start_date, end_date)
+    totals = calculate_totals(entries)
+
+    total_in = round(float(totals.get("Calories (kcal)", 0.0)), 1)
+    total_burned = round(float(sum(d["calories_out"] for d in daily_history)), 1)
+    total_net = round(total_in - total_burned, 1)
+
+    return jsonify({
+        "success": True,
+        "start_date": start_date,
+        "end_date": end_date,
+        "total_in": total_in,
+        "total_burned": total_burned,
+        "total_net": total_net,
+        "active_days": len(daily_history),
+        "history": daily_history,
+        "data": daily_history,
+        "summary": {
+            "total_calories_in": total_in,
+            "total_calories_out": total_burned,
+            "net_calories": total_net,
+            "days_logged": len(daily_history),
+            "start_date": start_date,
+            "end_date": end_date
+        }
+    })
+
+
+# =========================================================
+# API DYNAMIC WEIGHT PREDICTION FORECAST
+# =========================================================
+
+@app.route("/api/weight-prediction")
+@login_required
+def api_weight_prediction():
+    """
+    Returns personalized LSTM and metabolic weight trajectory forecast data
+    as JSON for interactive dynamic Chart.js horizon updating.
+    """
+    user_id = session.get("user_id")
+    days = request.args.get("days", default=30, type=int)
+    if days not in [7, 14, 30, 60, 90]:
+        days = 30
+
+    try:
+        forecast_data = predict_weight_trajectory(user_id, forecast_days=days)
+        return jsonify({
+            "success": True,
+            "days": forecast_data.get("days", days),
+            "current_weight": forecast_data.get("current_weight"),
+            "trajectory": forecast_data.get("trajectory", []),
+            "milestones": forecast_data.get("milestones", {}),
+            "model_used": forecast_data.get("model_used", "lstm_and_metabolic"),
+            "projected_final_weight": forecast_data.get("projected_final_weight"),
+            "total_projected_change": forecast_data.get("total_projected_change"),
+            "data": forecast_data
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
 
 # =========================================================
@@ -1358,11 +1402,20 @@ def predict_weight():
     AI and metabolic weight prediction for the authenticated user.
     """
     user_id = session.get("user_id")
+    days = request.args.get("days", default=30, type=int)
+    if days not in [7, 14, 30, 60, 90]:
+        days = 30
     try:
-        forecast_data = predict_weight_trajectory(user_id, forecast_days=30)
+        forecast_data = predict_weight_trajectory(user_id, forecast_days=days)
     except Exception as e:
+        if request.headers.get("Accept") == "application/json" or request.is_json:
+            return jsonify({"success": False, "error": str(e)}), 500
         flash(f"Error calculating weight prediction: {e}", "danger")
         return redirect(url_for("dashboard"))
+
+    if request.headers.get("Accept") == "application/json" or request.is_json:
+        return jsonify({"success": True, "data": forecast_data})
+
     return render_template("predict_weight.html", data=forecast_data)
 
 

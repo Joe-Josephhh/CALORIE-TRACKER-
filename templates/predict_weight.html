@@ -136,45 +136,45 @@ AI Weight Prediction | Calorie Tracker
             <div class="card" style="margin-bottom: 0; text-align: center; border: 1px solid #e2e8f0; border-radius: 12px;">
                 <span style="color: #64748b; font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">In 7 Days</span>
                 <div style="font-size: 32px; font-weight: 700; color: #1e293b; margin: 10px 0;">
-                    {{ "%.1f"|format(data.proj_7.weight) }} <small style="font-size: 16px; font-weight: 400;">kg</small>
+                    <span id="proj_7_weight">{{ "%.1f"|format(data.proj_7.weight) }}</span> <small style="font-size: 16px; font-weight: 400;">kg</small>
                 </div>
-                <div style="font-size: 14px; font-weight: 600; color: {% if data.proj_7.change < 0 %}#10b981{% elif data.proj_7.change > 0 %}#f59e0b{% else %}#64748b{% endif %};">
+                <div id="proj_7_change" style="font-size: 14px; font-weight: 600; color: {% if data.proj_7.change < 0 %}#10b981{% elif data.proj_7.change > 0 %}#f59e0b{% else %}#64748b{% endif %};">
                     {{ "%+.2f"|format(data.proj_7.change) }} kg from now
                 </div>
-                <small style="color: #94a3b8; display: block; margin-top: 6px;">{{ data.proj_7.date }}</small>
+                <small id="proj_7_date" style="color: #94a3b8; display: block; margin-top: 6px;">{{ data.proj_7.date }}</small>
             </div>
 
             <!-- 14 Days -->
             <div class="card" style="margin-bottom: 0; text-align: center; border: 1px solid #e2e8f0; border-radius: 12px;">
                 <span style="color: #64748b; font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">In 14 Days</span>
                 <div style="font-size: 32px; font-weight: 700; color: #1e293b; margin: 10px 0;">
-                    {{ "%.1f"|format(data.proj_14.weight) }} <small style="font-size: 16px; font-weight: 400;">kg</small>
+                    <span id="proj_14_weight">{{ "%.1f"|format(data.proj_14.weight) }}</span> <small style="font-size: 16px; font-weight: 400;">kg</small>
                 </div>
-                <div style="font-size: 14px; font-weight: 600; color: {% if data.proj_14.change < 0 %}#10b981{% elif data.proj_14.change > 0 %}#f59e0b{% else %}#64748b{% endif %};">
+                <div id="proj_14_change" style="font-size: 14px; font-weight: 600; color: {% if data.proj_14.change < 0 %}#10b981{% elif data.proj_14.change > 0 %}#f59e0b{% else %}#64748b{% endif %};">
                     {{ "%+.2f"|format(data.proj_14.change) }} kg from now
                 </div>
-                <small style="color: #94a3b8; display: block; margin-top: 6px;">{{ data.proj_14.date }}</small>
+                <small id="proj_14_date" style="color: #94a3b8; display: block; margin-top: 6px;">{{ data.proj_14.date }}</small>
             </div>
 
             <!-- 30 Days -->
             <div class="card" style="margin-bottom: 0; text-align: center; border: 1px solid #e2e8f0; border-radius: 12px; background: #faf5ff; border-color: #e9d5ff;">
                 <span style="color: #7c3aed; font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">In 30 Days (1 Month)</span>
                 <div style="font-size: 32px; font-weight: 700; color: #6b21a8; margin: 10px 0;">
-                    {{ "%.1f"|format(data.proj_30.weight) }} <small style="font-size: 16px; font-weight: 400;">kg</small>
+                    <span id="proj_30_weight">{{ "%.1f"|format(data.proj_30.weight) }}</span> <small style="font-size: 16px; font-weight: 400;">kg</small>
                 </div>
-                <div style="font-size: 14px; font-weight: 600; color: {% if data.proj_30.change < 0 %}#10b981{% elif data.proj_30.change > 0 %}#f59e0b{% else %}#64748b{% endif %};">
+                <div id="proj_30_change" style="font-size: 14px; font-weight: 600; color: {% if data.proj_30.change < 0 %}#10b981{% elif data.proj_30.change > 0 %}#f59e0b{% else %}#64748b{% endif %};">
                     {{ "%+.2f"|format(data.proj_30.change) }} kg from now
                 </div>
-                <small style="color: #94a3b8; display: block; margin-top: 6px;">{{ data.proj_30.date }}</small>
+                <small id="proj_30_date" style="color: #94a3b8; display: block; margin-top: 6px;">{{ data.proj_30.date }}</small>
             </div>
         </div>
     </div>
 
-    <!-- Interactive 30-Day Multi-Point Trajectory Chart -->
+    <!-- Interactive Multi-Point Trajectory Chart with Dynamic Horizon Switching -->
     <div class="card" style="margin-bottom: 30px;">
-        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 15px;">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px;">
             <div>
-                <h2 style="margin: 0; font-size: 20px;">📈 30-Day Trajectory Curve Comparison</h2>
+                <h2 id="chart_title" style="margin: 0; font-size: 20px;">📈 Trajectory Curve Comparison</h2>
                 <p style="color: #64748b; font-size: 14px; margin: 4px 0 0 0;">
                     Real-time non-linear curves demonstrating habit dynamics and metabolic adaptation:
                 </p>
@@ -196,7 +196,28 @@ AI Weight Prediction | Calorie Tracker
             {% endif %}
         </div>
 
-        <div style="position: relative; height: 340px; width: 100%;">
+        <!-- Interactive Horizon Controls & Dynamic Refresh (Feature C) -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; border-top: 1px solid #f1f5f9; padding-top: 12px;">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <span style="font-size: 13px; font-weight: 600; color: #475569;">Forecast Horizon:</span>
+                <div class="filter-pills" id="horizon_pills">
+                    <button type="button" class="filter-pill-btn" data-days="7">7 Days</button>
+                    <button type="button" class="filter-pill-btn" data-days="14">14 Days</button>
+                    <button type="button" class="filter-pill-btn active" data-days="30">30 Days</button>
+                    <button type="button" class="filter-pill-btn" data-days="60">60 Days</button>
+                    <button type="button" class="filter-pill-btn" data-days="90">90 Days</button>
+                </div>
+            </div>
+            <button type="button" id="refresh_forecast_btn" class="button small secondary" style="margin: 0; padding: 6px 14px; font-size: 13px;">
+                🔄 Refresh Forecast
+            </button>
+        </div>
+
+        <div class="chart-card-wrapper" style="position: relative; height: 340px; width: 100%;">
+            <div id="chart_loading_overlay" class="chart-loading-overlay hidden">
+                <div class="chart-loading-spinner"></div>
+                <span style="font-size: 13px; font-weight: 600; color: #1e293b;">Updating trajectory forecast...</span>
+            </div>
             <canvas id="weightTrajectoryChart"></canvas>
         </div>
         <div style="margin-top: 12px; text-align: center; color: #94a3b8; font-size: 12px;">
@@ -272,172 +293,11 @@ AI Weight Prediction | Calorie Tracker
         </details>
     </div>
 
-    <!-- Chart.js Initialization Script -->
+    <!-- Chart.js Dynamic Updating Script (Feature C) -->
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const ctx = document.getElementById('weightTrajectoryChart');
-            if (!ctx) return;
-
-            // Prepare chart labels (Days 1 to 30)
-            const labels = [
-                {% for pt in data.trajectory %}
-                    "Day {{ pt.day }} ({{ pt.date[5:] }})"{% if not loop.last %},{% endif %}
-                {% endfor %}
-            ];
-
-            // Primary active trajectory data
-            const activeData = [
-                {% for pt in data.trajectory %}
-                    {{ pt.weight }}{% if not loop.last %},{% endif %}
-                {% endfor %}
-            ];
-
-            const datasets = [];
-
-            {% if data.lstm_unlocked %}
-                // Hybrid Ensemble Active Forecast
-                datasets.push({
-                    label: "Hybrid Forecast (Active)",
-                    data: activeData,
-                    borderColor: "#7c3aed",
-                    backgroundColor: "rgba(124, 58, 237, 0.08)",
-                    borderWidth: 3,
-                    pointRadius: 3,
-                    pointHoverRadius: 6,
-                    pointBackgroundColor: "#7c3aed",
-                    fill: true,
-                    tension: 0.35
-                });
-
-                {% if data.lstm_trajectory %}
-                // Pure LSTM Deep Learning Neural Model Trajectory
-                const lstmData = [
-                    {% for pt in data.lstm_trajectory %}
-                        {{ pt.weight }}{% if not loop.last %},{% endif %}
-                    {% endfor %}
-                ];
-
-                datasets.push({
-                    label: "LSTM Deep Learning (Pure Neural)",
-                    data: lstmData,
-                    borderColor: "#c026d3",
-                    borderDash: [3, 3],
-                    borderWidth: 2,
-                    pointRadius: 2,
-                    pointHoverRadius: 5,
-                    pointBackgroundColor: "#c026d3",
-                    fill: false,
-                    tension: 0.3
-                });
-                {% endif %}
-
-                {% if data.metabolic_trajectory %}
-                // Thermodynamic Metabolic Baseline
-                const metabolicData = [
-                    {% for pt in data.metabolic_trajectory %}
-                        {{ pt.weight }}{% if not loop.last %},{% endif %}
-                    {% endfor %}
-                ];
-
-                datasets.push({
-                    label: "Metabolic Adaptation Baseline",
-                    data: metabolicData,
-                    borderColor: "#0284c7",
-                    borderDash: [5, 5],
-                    borderWidth: 2,
-                    pointRadius: 2,
-                    pointHoverRadius: 5,
-                    pointBackgroundColor: "#0284c7",
-                    fill: false,
-                    tension: 0.25
-                });
-                {% endif %}
-            {% else %}
-                // Only metabolic model available
-                datasets.push({
-                    label: "Metabolic Adaptation Trajectory",
-                    data: activeData,
-                    borderColor: "#2563eb",
-                    backgroundColor: "rgba(37, 99, 235, 0.08)",
-                    borderWidth: 3,
-                    pointRadius: 3,
-                    pointHoverRadius: 6,
-                    pointBackgroundColor: "#2563eb",
-                    fill: true,
-                    tension: 0.3
-                });
-            {% endif %}
-
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: datasets
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false
-                    },
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                usePointStyle: true,
-                                padding: 16,
-                                font: {
-                                    size: 13,
-                                    weight: '600'
-                                }
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                            titleFont: { size: 13, weight: 'bold' },
-                            bodyFont: { size: 12 },
-                            padding: 12,
-                            cornerRadius: 8,
-                            callbacks: {
-                                label: function(context) {
-                                    const val = context.parsed.y;
-                                    const diff = (val - {{ data.current_weight }}).toFixed(2);
-                                    const sign = diff > 0 ? "+" : "";
-                                    return ` ${context.dataset.label}: ${val.toFixed(2)} kg (${sign}${diff} kg)`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: {
-                                color: "rgba(226, 232, 240, 0.6)"
-                            },
-                            ticks: {
-                                maxTicksLimit: 10,
-                                font: { size: 11 },
-                                color: "#64748b"
-                            }
-                        },
-                        y: {
-                            grid: {
-                                color: "rgba(226, 232, 240, 0.8)"
-                            },
-                            ticks: {
-                                callback: function(value) {
-                                    return value.toFixed(1) + " kg";
-                                },
-                                font: { size: 11 },
-                                color: "#64748b"
-                            }
-                        }
-                    }
-                }
-            });
-        });
+        window.INITIAL_WEIGHT_DATA = {{ data|tojson }};
     </script>
+    <script src="{{ url_for('static', filename='js/predict_weight.js') }}"></script>
 
 {% endif %}
 

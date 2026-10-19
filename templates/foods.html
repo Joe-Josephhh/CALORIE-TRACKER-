@@ -23,81 +23,107 @@ Food Database
 <div class="card">
 
     <form
+        id="food_search_form"
         method="GET"
         action="{{ url_for('foods') }}"
     >
+        <div style="display: flex; gap: 10px; align-items: center; position: relative;">
+            <input
+                type="text"
+                id="food_search_input"
+                name="q"
+                value="{{ query }}"
+                placeholder="Search food (e.g. Parotta, Dosa, Biryani, Dal)..."
+                autocomplete="off"
+                style="flex: 1; padding-right: 32px;"
+            >
 
-        <input
-            type="text"
-            name="q"
-            value="{{ query }}"
-            placeholder="Search food (e.g. Parotta, Dosa, Biryani, Dal)..."
-        >
+            <button
+                type="button"
+                id="clear_search_btn"
+                title="Clear search"
+                style="display: {% if query %}block{% else %}none{% endif %}; position: absolute; right: 110px; background: none; border: none; font-size: 16px; color: #94a3b8; cursor: pointer; padding: 4px;"
+            >
+                ✕
+            </button>
 
-        <button
-            type="submit"
-            class="button"
-        >
-            Search
-        </button>
+            <button
+                type="submit"
+                id="search_submit_btn"
+                class="button"
+                style="margin: 0; white-space: nowrap;"
+            >
+                Search
+            </button>
+        </div>
+
+        <div id="search_loading" style="display: none; align-items: center; gap: 8px; margin-top: 10px; color: #64748b; font-size: 13px;">
+            <div class="chart-loading-spinner" style="width: 14px; height: 14px; border-width: 2px; margin: 0;"></div>
+            <span>Searching nutrition dataset...</span>
+        </div>
+
+        <div id="search_error" class="alert error" style="display: none; margin-top: 12px; margin-bottom: 0;"></div>
 
     </form>
 
 </div>
 
 
-<div class="card">
+<div class="card" id="search_results_container">
 
-    {% if query %}
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+        <h2 id="results_title" style="margin: 0;">
+            {% if query %}
+            Results for "{{ query }}"
+            {% else %}
+            Available Foods ({{ foods|length }})
+            {% endif %}
+        </h2>
+        <span id="results_count_badge" style="font-size: 13px; color: #64748b;">
+            {{ foods|length }} dishes
+        </span>
+    </div>
 
-    <h2>
-        Results for "{{ query }}"
-    </h2>
-
-    {% else %}
-
-    <h2>
-        Available Foods ({{ foods|length }})
-    </h2>
-
-    {% endif %}
-
-
-    {% if foods %}
-
-        <div class="food-list">
-
-        {% for food in foods %}
-
+    <!-- Active Results Container -->
+    <div id="foods_results_list" class="food-list">
+        {% if foods %}
+            {% for food in foods %}
             <div class="food-item">
-
-                <span>
-                    {{ food }}
-                </span>
+                <div>
+                    <span style="font-weight: 600; color: #1e293b;">
+                        {{ food }}
+                    </span>
+                </div>
 
                 <a
-                    href="{{ url_for(
-                        'log_food',
-                        food=food
-                    ) }}"
+                    href="{{ url_for('log_food', food=food) }}"
                     class="button small"
+                    style="margin: 0;"
                 >
                     Log
                 </a>
-
             </div>
+            {% endfor %}
+        {% endif %}
+    </div>
 
-        {% endfor %}
-
-        </div>
-
-    {% else %}
-
-        <p>
-            No matching foods found.
+    <!-- Empty State Container -->
+    <div
+        id="no_results_box"
+        style="display: {% if not foods %}block{% else %}none{% endif %}; text-align: center; padding: 30px 15px;"
+    >
+        <p id="no_results_message" style="color: #64748b; margin-bottom: 15px; font-size: 15px;">
+            No matching foods found in the database.
         </p>
-
-    {% endif %}
+        <a
+            id="create_custom_btn"
+            href="{{ url_for('log_food', food=query) if query else url_for('log_food') }}"
+            class="button"
+            style="background: #2563eb;"
+        >
+            + Create Custom Food
+        </a>
+    </div>
 
 </div>
 
@@ -162,5 +188,8 @@ Food Database
     </div>
 
 </div>
+
+<!-- JavaScript Debounced Search Implementation (Feature B) -->
+<script src="{{ url_for('static', filename='js/foods_search.js') }}"></script>
 
 {% endblock %}
